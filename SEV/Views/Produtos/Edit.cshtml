@@ -1,0 +1,61 @@
+﻿@model SEV.Models.Produto
+
+@{
+    ViewData["Title"] = "Editar Produto";
+}
+
+<h1 class="mb-4 text-primary">Editar Produto</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="ProdutoId" />
+
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label fw-bold"></label>
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Descricao" class="form-label fw-bold"></label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Preco" class="form-label fw-bold"></label>
+                <input asp-for="Preco" class="form-control" />
+                <span asp-validation-for="Preco" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="QuantidadeEstoque" class="form-label fw-bold"></label>
+                <input asp-for="QuantidadeEstoque" class="form-control" />
+                <span asp-validation-for="QuantidadeEstoque" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoriaId" class="form-label fw-bold">Categoria</label>
+                <select asp-for="CategoriaId" class="form-select" asp-items="ViewBag.CategoriaId"></select>
+                <span asp-validation-for="CategoriaId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FornecedorId" class="form-label fw-bold">Fornecedor</label>
+                <select asp-for="FornecedorId" class="form-select" asp-items="ViewBag.FornecedorId"></select>
+                <span asp-validation-for="FornecedorId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-save"></i> Salvar Alterações
+            </button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -1,0 +1,39 @@
+﻿@model SEV.Models.Fornecedor
+
+@{
+    ViewData["Title"] = "Excluir Fornecedor";
+}
+
+<h1 class="mb-4 text-danger">🗑️ Excluir Fornecedor</h1>
+
+<div class="alert alert-warning">
+    <strong>Atenção!</strong> Você tem certeza que deseja excluir este fornecedor?
+</div>
+
+<div class="card shadow-sm p-4 mb-4">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 fw-bold">Nome</dt>
+        <dd class="col-sm-9">@Model.Nome</dd>
+
+        <dt class="col-sm-3 fw-bold">CNPJ</dt>
+        <dd class="col-sm-9">@Model.CNPJ</dd>
+
+        <dt class="col-sm-3 fw-bold">Telefone</dt>
+        <dd class="col-sm-9">@Model.Telefone</dd>
+
+        <dt class="col-sm-3 fw-bold">Endereço</dt>
+        <dd class="col-sm-9">@Model.Endereco</dd>
+    </dl>
+</div>
+
+<form asp-action="Delete" method="post" class="d-flex gap-2">
+    <input type="hidden" asp-for="FornecedorId" />
+
+    <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash"></i> Confirmar Exclusão
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Cancelar
+    </a>
+</form>

@@ -1,0 +1,62 @@
+﻿@model IEnumerable<SEV.Models.Produto>
+
+@{
+    ViewData["Title"] = "Produtos";
+}
+
+<h1 class="mb-4 text-primary">Produtos</h1>
+
+<div class="mb-3 d-flex justify-content-end">
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle-fill me-1"></i> Novo Produto
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle-fill me-2"></i> Nenhum produto cadastrado ainda.
+    </div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>Estoque</th>
+                    <th>Categoria</th>
+                    <th>Fornecedor</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Nome</td>
+                        <td>@item.Descricao</td>
+                        <td>R$ @item.Preco.ToString("N2")</td>
+                        <td>@item.QuantidadeEstoque</td>
+                        <td>@item.Categoria?.Nome</td>
+                        <td>@item.Fornecedor?.Nome</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@item.ProdutoId" class="btn btn-sm btn-outline-info me-1">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.ProdutoId" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ProdutoId" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

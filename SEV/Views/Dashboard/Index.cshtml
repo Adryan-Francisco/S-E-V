@@ -1,0 +1,84 @@
+﻿
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4 text-primary"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-box-seam"></i> Produtos em Estoque</h5>
+                <p class="fs-3 fw-bold">@Model.TotalProdutos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cart-check"></i> Total de Vendas</h5>
+                <p class="fs-3 fw-bold">@Model.TotalVendas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-dark bg-warning shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-currency-dollar"></i> Faturamento Total</h5>
+                <p class="fs-3 fw-bold">R$ @Model.FaturamentoTotal.ToString("N2")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Vendas por Mês</h5>
+                <canvas id="vendasMesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Produtos com Baixo Estoque</h5>
+                <canvas id="baixoEstoqueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const vendasMesCtx = document.getElementById('vendasMesChart').getContext('2d');
+        new Chart(vendasMesCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.Meses)),
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: @Html.Raw(Json.Serialize(Model.VendasPorMes)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                }]
+            }
+        });
+
+        const estoqueCtx = document.getElementById('baixoEstoqueChart').getContext('2d');
+        new Chart(estoqueCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueNomes)),
+                datasets: [{
+                    label: 'Qtd em Estoque',
+                    data: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueQtd)),
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                }]
+            }
+        });
+    </script>
+}

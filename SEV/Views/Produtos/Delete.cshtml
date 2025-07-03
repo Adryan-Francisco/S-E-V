@@ -1,0 +1,45 @@
+﻿@model SEV.Models.Produto
+
+@{
+    ViewData["Title"] = "Excluir Produto";
+}
+
+<h1 class="mb-4 text-danger">Excluir Produto</h1>
+
+<div class="alert alert-warning">
+    <strong>Atenção!</strong> Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3 fw-bold">Nome</dt>
+            <dd class="col-sm-9">@Model.Nome</dd>
+
+            <dt class="col-sm-3 fw-bold">Descrição</dt>
+            <dd class="col-sm-9">@Model.Descricao</dd>
+
+            <dt class="col-sm-3 fw-bold">Preço</dt>
+            <dd class="col-sm-9">R$ @Model.Preco.ToString("N2")</dd>
+
+            <dt class="col-sm-3 fw-bold">Estoque</dt>
+            <dd class="col-sm-9">@Model.QuantidadeEstoque</dd>
+
+            <dt class="col-sm-3 fw-bold">Categoria</dt>
+            <dd class="col-sm-9">@Model.Categoria?.Nome</dd>
+
+            <dt class="col-sm-3 fw-bold">Fornecedor</dt>
+            <dd class="col-sm-9">@Model.Fornecedor?.Nome</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ProdutoId" />
+    <button type="submit" class="btn btn-danger me-2">
+        <i class="bi bi-trash-fill"></i> Confirmar Exclusão
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Cancelar
+    </a>
+</form>

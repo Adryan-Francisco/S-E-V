@@ -1,0 +1,32 @@
+﻿@model SEV.Models.Fornecedor
+
+@{
+    ViewData["Title"] = "Detalhes do Fornecedor";
+}
+
+<h1 class="mb-4 text-primary">📄 Detalhes do Fornecedor</h1>
+
+<div class="card shadow-sm p-4 mb-4">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 fw-bold">Nome</dt>
+        <dd class="col-sm-9">@Model.Nome</dd>
+
+        <dt class="col-sm-3 fw-bold">CNPJ</dt>
+        <dd class="col-sm-9">@Model.CNPJ</dd>
+
+        <dt class="col-sm-3 fw-bold">Telefone</dt>
+        <dd class="col-sm-9">@Model.Telefone</dd>
+
+        <dt class="col-sm-3 fw-bold">Endereço</dt>
+        <dd class="col-sm-9">@Model.Endereco</dd>
+    </dl>
+</div>
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model?.FornecedorId" class="btn btn-outline-primary">
+        <i class="bi bi-pencil-square"></i> Editar
+    </a>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Voltar
+    </a>
+</div>
