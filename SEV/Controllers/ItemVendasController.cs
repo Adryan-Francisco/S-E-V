@@ -49,8 +49,8 @@ namespace SEV.Controllers
         // GET: ItemVendas/Create
         public IActionResult Create()
         {
-            ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome");
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId");
+            ViewBag.VendaId = new SelectList(_context.Vendas, "VendaId", "VendaId");
+            ViewBag.ProdutoId = new SelectList(_context.Produtos, "ProdutoId", "Nome");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace SEV.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
+        public async Task<IActionResult> Create([Bind("VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
         {
             if (ModelState.IsValid)
             {
@@ -67,10 +67,12 @@ namespace SEV.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
+
+            ViewBag.VendaId = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
+            ViewBag.ProdutoId = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
             return View(itemVenda);
         }
+
 
         // GET: ItemVendas/Edit/5
         public async Task<IActionResult> Edit(int? id)

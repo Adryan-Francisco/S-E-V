@@ -15,9 +15,9 @@ namespace SEV.Models
         public int ClienteId { get; set; }
 
         [ForeignKey("ClienteId")]
-        public Cliente Cliente { get; set; }
+        public Cliente? Cliente { get; set; }
 
-       
+
         public List<ItemVenda>? Itens { get; set; }
 
         public decimal Total { get; set; }

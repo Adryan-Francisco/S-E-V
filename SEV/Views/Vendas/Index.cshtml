@@ -1,50 +1,58 @@
 ﻿@model IEnumerable<SEV.Models.Venda>
 
-
-
 @{
     ViewData["Title"] = "Vendas";
 }
 
-<h1 class="text-primary">
-    <i class="bi bi-box-seam"></i> Vendas
+<h1 class="mb-4 text-primary">
+    <i class="bi bi-cart-check"></i> Vendas Realizadas
 </h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success">
+    <a asp-action="Create" class="btn btn-success mb-3">
         <i class="bi bi-plus-circle"></i> Nova Venda
     </a>
 </p>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">Nenhuma venda cadastrada até o momento.</div>
+    <div class="alert alert-info">
+        Nenhuma venda cadastrada até o momento.
+    </div>
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Cliente</th>
-                <th>Total</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var venda in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle shadow-sm">
+            <thead class="table-light">
                 <tr>
-                    <td>@venda.DataVenda.ToString("dd/MM/yyyy")</td>
-                    <td>@venda.Cliente?.Nome</td>
-                    <td>@venda.Total.ToString("C")</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@venda.VendaId" class="btn btn-info btn-sm">Detalhes</a>
-                        <a asp-action="Edit" asp-route-id="@venda.VendaId" class="btn btn-warning btn-sm">Editar</a>
-                        <a asp-action="Delete" asp-route-id="@venda.VendaId" class="btn btn-danger btn-sm">Excluir</a>
-                    </td>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th class="text-end" style="width: 200px;">Ações</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var venda in Model)
+                {
+                    <tr>
+                        <td>@venda.DataVenda.ToString("dd/MM/yyyy")</td>
+                        <td>@venda.Cliente?.Nome</td>
+                        <td>@venda.Total.ToString("C")</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@venda.VendaId" class="btn btn-sm btn-outline-info me-1">
+                                <i class="bi bi-info-circle"></i> 
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@venda.VendaId" class="btn btn-sm btn-outline-warning me-1">
+                                <i class="bi bi-pencil"></i> 
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@venda.VendaId" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> 
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

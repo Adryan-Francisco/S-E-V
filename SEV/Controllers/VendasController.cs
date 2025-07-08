@@ -23,10 +23,10 @@ namespace SEV.Controllers
         public async Task<IActionResult> Index()
         {
             var vendas = await _context.Vendas
-                .Include(v => v.Cliente)
+                .Include(v => v.Cliente) // ESSENCIAL!
                 .ToListAsync();
 
-            return View(vendas); // aqui é List<Venda>, por isso a view precisa ser IEnumerable<SEV.Models.Venda>
+            return View(vendas);
         }
         // GET: Vendas/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -48,28 +48,39 @@ namespace SEV.Controllers
         }
 
         // GET
-        [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.ClienteId = new SelectList(_context.Clientes, "ClienteId", "Nome");
-            return View(new Venda());
+            ViewBag.ClienteId = new SelectList(_context.Clientes.ToList(), "ClienteId", "Nome");
+            return View();
         }
 
-        // POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("VendaId,DataVenda,ClienteId,Total")] Venda venda)
         {
+            Console.WriteLine($"Venda recebida: ClienteId={venda.ClienteId}, Total={venda.Total}");
+
             if (ModelState.IsValid)
             {
+                // ⚠️ Força DataVenda para UTC
+                venda.DataVenda = DateTime.SpecifyKind(venda.DataVenda, DateTimeKind.Utc);
+
                 _context.Add(venda);
                 await _context.SaveChangesAsync();
+                Console.WriteLine("Venda salva com sucesso!");
                 return RedirectToAction(nameof(Index));
+            }
+
+            Console.WriteLine("ModelState inválido");
+            foreach (var erro in ModelState.Values.SelectMany(e => e.Errors))
+            {
+                Console.WriteLine(erro.ErrorMessage);
             }
 
             ViewBag.ClienteId = new SelectList(_context.Clientes, "ClienteId", "Nome", venda.ClienteId);
             return View(venda);
         }
+
         // GET: Vendas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -160,6 +171,19 @@ namespace SEV.Controllers
         private bool VendaExists(int id)
         {
             return _context.Vendas.Any(e => e.VendaId == id);
+        }
+        public async Task<IActionResult> TesteVendaDireta()
+        {
+            var venda = new Venda
+            {
+                DataVenda = DateTime.Now,
+                ClienteId = 1, // ID existente!
+                Total = 99.99M
+            };
+
+            _context.Add(venda);
+            await _context.SaveChangesAsync();
+            return Content("Venda cadastrada com ID: " + venda.VendaId);
         }
     }
 }
