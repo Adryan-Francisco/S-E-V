@@ -1,42 +1,52 @@
 ﻿@model SEV.Models.ItemVenda
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes do Item de Venda";
 }
 
-<h1>Details</h1>
+<h1 class="mb-4 text-primary">
+    <i class="bi bi-search"></i> Detalhes do Item de Venda
+</h1>
 
-<div>
-    <h4>ItemVenda</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Venda)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Venda.VendaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Produto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Produto.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Quantidade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Quantidade)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PrecoUnitario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PrecoUnitario)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ItemVendaId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3 fw-bold">
+        Venda Nº
+    </dt>
+    <dd class="col-sm-9">
+        @Model.Venda?.VendaId
+    </dd>
+
+    <dt class="col-sm-3 fw-bold">
+        Produto
+    </dt>
+    <dd class="col-sm-9">
+        @Model.Produto?.Nome
+    </dd>
+
+    <dt class="col-sm-3 fw-bold">
+        Quantidade
+    </dt>
+    <dd class="col-sm-9">
+        @Model.Quantidade
+    </dd>
+
+    <dt class="col-sm-3 fw-bold">
+        Preço Unitário
+    </dt>
+    <dd class="col-sm-9">
+        @Model.PrecoUnitario.ToString("C")
+    </dd>
+</dl>
+
+<hr />
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model?.ItemVendaId" class="btn btn-warning">
+        <i class="bi bi-pencil-square"></i> Editar
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
 </div>

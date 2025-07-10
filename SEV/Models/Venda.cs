@@ -9,7 +9,7 @@ namespace SEV.Models
 
         [Required]
         [DataType(DataType.Date)]
-        public DateTime DataVenda { get; set; }
+        public DateTime DataVenda { get; set; } = DateTime.UtcNow;
 
         [Required]
         public int ClienteId { get; set; }

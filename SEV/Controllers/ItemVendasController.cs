@@ -46,32 +46,56 @@ namespace SEV.Controllers
             return View(itemVenda);
         }
 
-        // GET: ItemVendas/Create
+        // GET
         public IActionResult Create()
         {
-            ViewBag.VendaId = new SelectList(_context.Vendas, "VendaId", "VendaId");
-            ViewBag.ProdutoId = new SelectList(_context.Produtos, "ProdutoId", "Nome");
+            ViewBag.VendaId = new SelectList(_context.Vendas.ToList(), "VendaId", "VendaId");
+            ViewBag.ProdutoId = new SelectList(_context.Produtos.ToList(), "ProdutoId", "Nome");
             return View();
         }
 
-        // POST: ItemVendas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(itemVenda);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+        // POST
+       [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
+{
+    if (ModelState.IsValid)
+    {
+        var produto = await _context.Produtos.FindAsync(itemVenda.ProdutoId);
 
-            ViewBag.VendaId = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
-            ViewBag.ProdutoId = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
+        if (produto == null)
+        {
+            ModelState.AddModelError("", "Produto não encontrado.");
             return View(itemVenda);
         }
+
+        if (produto.QuantidadeEstoque < itemVenda.Quantidade)
+        {
+            ModelState.AddModelError("", "Estoque insuficiente para este produto.");
+            return View(itemVenda);
+        }
+
+        // Subtrair a quantidade vendida do estoque
+        produto.QuantidadeEstoque -= itemVenda.Quantidade;
+
+        // Registrar o preço atual
+        itemVenda.PrecoUnitario = produto.Preco;
+
+        _context.Add(itemVenda);
+        _context.Update(produto); // Atualiza o produto com estoque novo
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", "Vendas", new { id = itemVenda.VendaId });
+    }
+
+    ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
+    ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
+
+    return View(itemVenda);
+}
+
+
 
 
         // GET: ItemVendas/Edit/5
@@ -141,6 +165,7 @@ namespace SEV.Controllers
                 .Include(i => i.Produto)
                 .Include(i => i.Venda)
                 .FirstOrDefaultAsync(m => m.ItemVendaId == id);
+
             if (itemVenda == null)
             {
                 return NotFound();
@@ -154,15 +179,26 @@ namespace SEV.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var itemVenda = await _context.ItensVenda.FindAsync(id);
+            var itemVenda = await _context.ItensVenda
+                .Include(i => i.Produto)
+                .FirstOrDefaultAsync(i => i.ItemVendaId == id);
+
             if (itemVenda != null)
             {
+                // Devolver a quantidade ao estoque
+                if (itemVenda.Produto != null)
+                {
+                    itemVenda.Produto.QuantidadeEstoque += itemVenda.Quantidade;
+                    _context.Update(itemVenda.Produto);
+                }
+
                 _context.ItensVenda.Remove(itemVenda);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool ItemVendaExists(int id)
         {

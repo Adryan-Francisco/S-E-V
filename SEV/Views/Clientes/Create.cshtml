@@ -10,7 +10,6 @@
     <div class="col-md-7 col-lg-6">
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                @* Exibe erros gerais de validação *@
                 @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Count > 0)
                 {
                     <div class="alert alert-danger">
@@ -29,19 +28,19 @@
 
                     <div class="mb-3">
                         <label asp-for="Nome" class="form-label fw-semibold"></label>
-                        <input asp-for="Nome" class="form-control form-control-lg" placeholder="Ex: João Silva" />
+                        <input asp-for="Nome" class="form-control form-control-lg" placeholder="Digite o Nome" />
                         <span asp-validation-for="Nome" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="CPF" class="form-label fw-semibold"></label>
-                        <input asp-for="CPF" class="form-control form-control-lg" placeholder="Somente números (11 dígitos)" />
+                        <input asp-for="CPF" class="form-control form-control-lg" placeholder="000.000.000-00" id="cpf" />
                         <span asp-validation-for="CPF" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Telefone" class="form-label fw-semibold"></label>
-                        <input asp-for="Telefone" class="form-control form-control-lg" placeholder="Ex: (99) 99999-9999" />
+                        <input asp-for="Telefone" class="form-control form-control-lg" placeholder="(99) 99999-9999" id="telefone" />
                         <span asp-validation-for="Telefone" class="text-danger small"></span>
                     </div>
 
@@ -67,4 +66,12 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#CpfInput').mask('000.000.000-00');
+            $('#TelefoneInput').mask('(00) 00000-0000');
+        });
+    </script>
 }

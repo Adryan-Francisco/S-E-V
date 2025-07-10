@@ -29,13 +29,13 @@
 
             <div class="mb-3">
                 <label asp-for="CNPJ" class="form-label fw-bold"></label>
-                <input asp-for="CNPJ" class="form-control" />
+                <input asp-for="CNPJ" class="form-control" id="CnpjInput" />
                 <span asp-validation-for="CNPJ" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Telefone" class="form-label fw-bold"></label>
-                <input asp-for="Telefone" class="form-control" />
+                <input asp-for="Telefone" class="form-control" id="TelefoneInput" />
                 <span asp-validation-for="Telefone" class="text-danger"></span>
             </div>
 
@@ -57,4 +57,12 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#CnpjInput').mask('00.000.000/0000-00');
+            $('#TelefoneInput').mask('(00) 00000-0000');
+        });
+    </script>
 }

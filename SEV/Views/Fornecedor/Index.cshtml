@@ -36,18 +36,39 @@ else
                 {
                     <tr>
                         <td>@item.Nome</td>
-                        <td>@item.CNPJ</td>
-                        <td>@item.Telefone</td>
+
+                        <!-- Formatando CNPJ como 00.000.000/0000-00 -->
+                        <td>
+                            @{
+                                var cnpj = item.CNPJ?.PadLeft(14, '0');
+                                var cnpjFormatado = Convert.ToUInt64(cnpj).ToString(@"00\.000\.000\/0000\-00");
+                            }
+                            @cnpjFormatado
+                        </td>
+
+                        <!-- Formatando telefone como (XX) XXXXX-XXXX -->
+                        <td>
+                            @{
+                                var tel = item.Telefone?.Trim();
+                                string telFormatado = tel?.Length == 11
+                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
+                                : tel?.Length == 10
+                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
+                                : tel;
+                            }
+                            @telFormatado
+                        </td>
+
                         <td>@item.Endereco</td>
                         <td class="text-end">
                             <a asp-action="Edit" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-primary me-1">
-                                <i class="bi bi-pencil-square"></i> 
+                                <i class="bi bi-pencil-square"></i>
                             </a>
                             <a asp-action="Details" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-info-circle"></i> 
+                                <i class="bi bi-info-circle"></i>
                             </a>
                             <a asp-action="Delete" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash"></i> 
+                                <i class="bi bi-trash"></i>
                             </a>
                         </td>
                     </tr>

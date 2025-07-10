@@ -11,16 +11,17 @@ namespace SEV.Models
         public int VendaId { get; set; }
 
         [ForeignKey("VendaId")]
-        public Venda Venda { get; set; }
+        public Venda? Venda { get; set; }  // ← Torne nullable
 
         [Required]
         public int ProdutoId { get; set; }
 
         [ForeignKey("ProdutoId")]
-        public Produto Produto { get; set; }
+        public Produto? Produto { get; set; }  // ← Torne nullable
 
         public int Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }
     }
+
 
 }

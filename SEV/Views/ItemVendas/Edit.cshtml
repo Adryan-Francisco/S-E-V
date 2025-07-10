@@ -1,49 +1,57 @@
 ﻿@model SEV.Models.ItemVenda
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Item de Venda";
 }
 
-<h1>Edit</h1>
+<h1 class="mb-4 text-primary">
+    <i class="bi bi-pencil-square"></i> Editar Item de Venda
+</h1>
 
-<h4>ItemVenda</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
             <input type="hidden" asp-for="ItemVendaId" />
-            <div class="form-group">
-                <label asp-for="VendaId" class="control-label"></label>
-                <select asp-for="VendaId" class="form-control" asp-items="ViewBag.VendaId"></select>
+
+            <div class="mb-3">
+                <label asp-for="VendaId" class="form-label fw-bold">Venda</label>
+                <select asp-for="VendaId" class="form-select" asp-items="ViewBag.VendaId"></select>
                 <span asp-validation-for="VendaId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ProdutoId" class="control-label"></label>
-                <select asp-for="ProdutoId" class="form-control" asp-items="ViewBag.ProdutoId"></select>
+
+            <div class="mb-3">
+                <label asp-for="ProdutoId" class="form-label fw-bold">Produto</label>
+                <select asp-for="ProdutoId" class="form-select" asp-items="ViewBag.ProdutoId"></select>
                 <span asp-validation-for="ProdutoId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Quantidade" class="control-label"></label>
+
+            <div class="mb-3">
+                <label asp-for="Quantidade" class="form-label fw-bold">Quantidade</label>
                 <input asp-for="Quantidade" class="form-control" />
                 <span asp-validation-for="Quantidade" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PrecoUnitario" class="control-label"></label>
+
+            <div class="mb-3">
+                <label asp-for="PrecoUnitario" class="form-label fw-bold">Preço Unitário (R$)</label>
                 <input asp-for="PrecoUnitario" class="form-control" />
                 <span asp-validation-for="PrecoUnitario" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Salvar
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

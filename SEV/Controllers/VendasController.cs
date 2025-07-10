@@ -114,6 +114,9 @@ namespace SEV.Controllers
             {
                 try
                 {
+                    // 🔧 Corrige o tipo da data para UTC (exigido pelo PostgreSQL)
+                    venda.DataVenda = DateTime.SpecifyKind(venda.DataVenda, DateTimeKind.Utc);
+
                     _context.Update(venda);
                     await _context.SaveChangesAsync();
                 }
@@ -130,10 +133,10 @@ namespace SEV.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["ClienteId"] = new SelectList(_context.Clientes, "ClienteId", "CPF", venda.ClienteId);
             return View(venda);
         }
-
         // GET: Vendas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {

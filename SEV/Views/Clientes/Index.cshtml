@@ -36,9 +36,23 @@ else
                 {
                     <tr>
                         <td>@item.Nome</td>
-                        <td>@item.CPF</td>
-                        <td>@item.Telefone</td>
+
+                        <!-- Formatação de CPF: 000.000.000-00 -->
+                        <td>
+                            @(Convert.ToUInt64(item.CPF).ToString(@"000\.000\.000\-00"))
+                        </td>
+
+                        <!-- Formatação de Telefone: (00) 00000-0000 -->
+                        <td>
+                            @(
+                                item.Telefone.Length == 11
+                                ? Convert.ToUInt64(item.Telefone).ToString(@"\(00\) 00000\-0000")
+                                : Convert.ToUInt64(item.Telefone).ToString(@"\(00\) 0000\-0000")
+                                )
+                        </td>
+
                         <td>@item.Endereco</td>
+
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-info me-1">
                                 <i class="bi bi-eye-fill"></i>
