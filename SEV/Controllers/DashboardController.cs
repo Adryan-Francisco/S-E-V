@@ -42,12 +42,12 @@ namespace SEV.Controllers
                     .ToList(),
 
                 ProdutosBaixoEstoqueNomes = produtos
-                    .Where(p => p.ProdutoId < 5)
+                    .Where(p => p.ProdutoId > 0)
                     .Select(p => p.Nome)
                     .ToList(),
 
                 ProdutosBaixoEstoqueQtd = produtos
-                    .Where(p => p.ProdutoId < 5)
+                    .Where(p => p.ProdutoId > 0)
                     .Select(p => p.QuantidadeEstoque)
                     .ToList()
             };

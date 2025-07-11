@@ -37,18 +37,26 @@ else
                     <tr>
                         <td>@item.Nome</td>
 
-                        <!-- Formatação de CPF: 000.000.000-00 -->
                         <td>
-                            @(Convert.ToUInt64(item.CPF).ToString(@"000\.000\.000\-00"))
+                            @{
+                                var cpf = item.CPF?.PadLeft(11, '0');
+                                var cpfFormatado = cpf?.Length == 11
+                                ? $"{cpf.Substring(0, 3)}.{cpf.Substring(3, 3)}.{cpf.Substring(6, 3)}-{cpf.Substring(9, 2)}"
+                                : item.CPF;
+                            }
+                            @cpfFormatado
                         </td>
 
-                        <!-- Formatação de Telefone: (00) 00000-0000 -->
                         <td>
-                            @(
-                                item.Telefone.Length == 11
-                                ? Convert.ToUInt64(item.Telefone).ToString(@"\(00\) 00000\-0000")
-                                : Convert.ToUInt64(item.Telefone).ToString(@"\(00\) 0000\-0000")
-                                )
+                            @{
+                                var tel = item.Telefone?.Trim();
+                                var telFormatado = tel?.Length == 11
+                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
+                                : tel?.Length == 10
+                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
+                                : tel;
+                            }
+                            @telFormatado
                         </td>
 
                         <td>@item.Endereco</td>

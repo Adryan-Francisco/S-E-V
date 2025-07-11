@@ -58,4 +58,12 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+
+        $.validator.methods.number = function (value, element) {
+            value = value.replace(/\./g, '').replace(',', '.');
+            return this.optional(element) || !isNaN(parseFloat(value));
+        };
+    </script>
 }

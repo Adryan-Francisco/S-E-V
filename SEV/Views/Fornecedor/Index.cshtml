@@ -38,13 +38,11 @@ else
                         <td>@item.Nome</td>
 
                         <!-- Formatando CNPJ como 00.000.000/0000-00 -->
-                        <td>
-                            @{
-                                var cnpj = item.CNPJ?.PadLeft(14, '0');
-                                var cnpjFormatado = Convert.ToUInt64(cnpj).ToString(@"00\.000\.000\/0000\-00");
-                            }
-                            @cnpjFormatado
-                        </td>
+                        @{
+                            string cnpjNumeros = new string(item.CNPJ.Where(char.IsDigit).ToArray());
+                            string cnpjFormatado = Convert.ToUInt64(cnpjNumeros).ToString(@"00\.000\.000\/0000\-00");
+                        }
+                        <td>@cnpjFormatado</td>
 
                         <!-- Formatando telefone como (XX) XXXXX-XXXX -->
                         <td>

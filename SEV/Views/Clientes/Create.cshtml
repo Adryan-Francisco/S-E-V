@@ -34,13 +34,13 @@
 
                     <div class="mb-3">
                         <label asp-for="CPF" class="form-label fw-semibold"></label>
-                        <input asp-for="CPF" class="form-control form-control-lg" placeholder="000.000.000-00" id="cpf" />
+                        <input asp-for="CPF" class="form-control form-control-lg" placeholder="000.000.000-00" id="CPF" />
                         <span asp-validation-for="CPF" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Telefone" class="form-label fw-semibold"></label>
-                        <input asp-for="Telefone" class="form-control form-control-lg" placeholder="(99) 99999-9999" id="telefone" />
+                        <input asp-for="Telefone" class="form-control form-control-lg" placeholder="(99) 99999-9999" id="Telefone" />
                         <span asp-validation-for="Telefone" class="text-danger small"></span>
                     </div>
 
@@ -70,8 +70,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#CpfInput').mask('000.000.000-00');
-            $('#TelefoneInput').mask('(00) 00000-0000');
+            $('#CPF').mask('000.000.000-00');
+            $('#Telefone').mask('(00) 00000-0000');
+
+            $('form').submit(function () {
+                // Remove máscara antes de enviar
+                $('#CPF').val($('#CPF').val().replace(/\D/g, ''));
+                $('#Telefone').val($('#Telefone').val().replace(/\D/g, ''));
+            });
         });
     </script>
 }
