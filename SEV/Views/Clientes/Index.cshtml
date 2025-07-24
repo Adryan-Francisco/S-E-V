@@ -4,77 +4,106 @@
     ViewData["Title"] = "Clientes";
 }
 
-<h1 class="mb-4 text-primary">Clientes</h1>
+<style>
+    .card-custom {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+    }
+
+    .btn-custom {
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+
+    .icon-action {
+        font-size: 1.1rem;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+</style>
+
+<h2 class="mb-4 text-primary fw-bold">
+    <i class="bi bi-people-fill me-2"></i> Clientes
+</h2>
 
 <div class="mb-3 d-flex justify-content-end">
-    <a asp-action="Create" class="btn btn-success">
+    <a asp-action="Create" class="btn btn-success btn-custom shadow-sm">
         <i class="bi bi-person-plus-fill me-1"></i> Novo Cliente
     </a>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle-fill me-2"></i> Nenhum cliente cadastrado ainda.
+    <div class="alert alert-info text-center rounded shadow-sm">
+        <i class="bi bi-info-circle me-2"></i> Nenhum cliente cadastrado ainda.
     </div>
 }
 else
 {
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Nome</th>
-                    <th>CPF</th>
-                    <th>Telefone</th>
-                    <th>Endereço</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    <div class="card-custom">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <td>@item.Nome</td>
-
-                        <td>
-                            @{
-                                var cpf = item.CPF?.PadLeft(11, '0');
-                                var cpfFormatado = cpf?.Length == 11
-                                ? $"{cpf.Substring(0, 3)}.{cpf.Substring(3, 3)}.{cpf.Substring(6, 3)}-{cpf.Substring(9, 2)}"
-                                : item.CPF;
-                            }
-                            @cpfFormatado
-                        </td>
-
-                        <td>
-                            @{
-                                var tel = item.Telefone?.Trim();
-                                var telFormatado = tel?.Length == 11
-                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
-                                : tel?.Length == 10
-                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
-                                : tel;
-                            }
-                            @telFormatado
-                        </td>
-
-                        <td>@item.Endereco</td>
-
-                        <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-primary me-1">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th class="text-end">Ações</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Nome</td>
+
+                            <td>
+                                @{
+                                    var cpf = item.CPF?.PadLeft(11, '0');
+                                    var cpfFormatado = cpf?.Length == 11
+                                    ? $"{cpf.Substring(0, 3)}.{cpf.Substring(3, 3)}.{cpf.Substring(6, 3)}-{cpf.Substring(9, 2)}"
+                                    : item.CPF;
+                                }
+                                @cpfFormatado
+                            </td>
+
+                            <td>
+                                @{
+                                    var tel = item.Telefone?.Trim();
+                                    var telFormatado = tel?.Length == 11
+                                    ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
+                                    : tel?.Length == 10
+                                    ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
+                                    : tel;
+                                }
+                                @telFormatado
+                            </td>
+
+                            <td>@item.Endereco</td>
+
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-info btn-custom me-1" title="Visualizar">
+                                    <i class="bi bi-eye-fill icon-action"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-primary btn-custom me-1" title="Editar">
+                                    <i class="bi bi-pencil-fill icon-action"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-danger btn-custom" title="Excluir">
+                                    <i class="bi bi-trash-fill icon-action"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }

@@ -2,54 +2,113 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<h2 class="mb-4 text-primary"><i class="bi bi-bar-chart-fill"></i> Dashboard</h2>
+<style>
+    :root {
+        --bg-main: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+        --text-color: #1e293b;
+        --glass-bg: rgba(255, 255, 255, 0.2);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --shadow-light: rgba(255, 255, 255, 0.6);
+        --shadow-dark: rgba(0, 0, 0, 0.1);
+    }
 
-<div class="row mb-4">
+    body {
+        background: var(--bg-main);
+        color: var(--text-color);
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(16px);
+        border-radius: 18px;
+        box-shadow: 8px 8px 20px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+    .icon-xl {
+        font-size: 2.5rem;
+        opacity: 0.85;
+    }
+
+    h2, h3, h5, h6 {
+        font-weight: 600;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+    }
+
+    h6 {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+</style>
+
+<h2 class="mb-4 text-primary fw-bold">
+    <i class="bi bi-speedometer2 me-2"></i> Painel Administrativo
+</h2>
+
+<div class="row g-4 mb-4">
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 bg-primary text-white p-4 rounded-4">
+        <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h5>📦 Produtos em Estoque</h5>
-                    <h2>@Model.TotalProdutos</h2>
+                    <h6>📦 Produtos em Estoque</h6>
+                    <h3>@Model.TotalProdutos</h3>
                 </div>
-                <i class="bi bi-box-seam display-4"></i>
+                <i class="bi bi-box-seam icon-xl text-primary"></i>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 bg-success text-white p-4 rounded-4">
+        <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h5>💰 Total de Vendas</h5>
-                    <h2>@Model.TotalVendas</h2>
+                    <h6>💰 Total de Vendas</h6>
+                    <h3>@Model.TotalVendas</h3>
                 </div>
-                <i class="bi bi-cash-stack display-4"></i>
+                <i class="bi bi-cart-check icon-xl text-success"></i>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 bg-warning text-dark p-4 rounded-4">
+        <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h5>📈 Faturamento Total</h5>
-                    <h2>R$ @Model.FaturamentoTotal.ToString("N2")</h2>
+                    <h6>📈 Faturamento</h6>
+                    <h3>R$ @Model.FaturamentoTotal.ToString("N2")</h3>
                 </div>
-                <i class="bi bi-bar-chart-steps display-4"></i>
+                <i class="bi bi-graph-up-arrow icon-xl text-warning"></i>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm p-3">
-            <h5 class="text-primary"><i class="bi bi-calendar-event"></i> Vendas por Mês</h5>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h5 class="text-primary mb-3">
+                <i class="bi bi-calendar-week me-2"></i> Vendas por Mês
+            </h5>
             <canvas id="vendasMesChart" height="200"></canvas>
         </div>
     </div>
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm p-3">
-            <h5 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Produtos no Estoque</h5>
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h5 class="text-danger mb-3">
+                <i class="bi bi-exclamation-diamond me-2"></i> Produtos com Baixo Estoque
+            </h5>
             <canvas id="baixoEstoqueChart" height="200"></canvas>
         </div>
     </div>
@@ -58,46 +117,46 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const vendasMesChart = new Chart(document.getElementById('vendasMesChart'), {
+        new Chart(document.getElementById('vendasMesChart'), {
             type: 'line',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.Meses)),
                 datasets: [{
                     label: 'Faturamento (R$)',
                     data: @Html.Raw(Json.Serialize(Model.VendasPorMes)),
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2,
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
                     fill: true,
-                    tension: 0.3,
-                    pointRadius: 4
+                    tension: 0.4,
+                    pointBackgroundColor: 'white',
+                    pointBorderColor: '#0d6efd',
+                    pointRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: true },
-                    tooltip: { enabled: true }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: value => 'R$ ' + value.toLocaleString()
+                            callback: val => 'R$ ' + val.toLocaleString('pt-BR')
                         }
                     }
                 }
             }
         });
 
-        const estoqueChart = new Chart(document.getElementById('baixoEstoqueChart'), {
+        new Chart(document.getElementById('baixoEstoqueChart'), {
             type: 'bar',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueNomes)),
                 datasets: [{
-                    label: 'Quantidade em Estoque',
+                    label: 'Estoque',
                     data: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueQtd)),
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]
@@ -105,8 +164,7 @@
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: true }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {

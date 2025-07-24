@@ -4,49 +4,82 @@
     ViewData["Title"] = "Categorias";
 }
 
-<h1 class="mb-4 text-primary">Categorias</h1>
+<style>
+    .card-custom {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+    }
+
+    .btn-custom {
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+
+    .table thead {
+        background: #f8f9fa;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .icon-action {
+        font-size: 1.1rem;
+    }
+</style>
+
+<h2 class="mb-4 text-primary fw-bold">
+    <i class="bi bi-tags-fill me-2"></i> Categorias
+</h2>
 
 <div class="mb-3 d-flex justify-content-end">
-    <a asp-action="Create" class="btn btn-success">
-        <i class="bi bi-plus-circle-fill me-1"></i> Nova Categoria
+    <a asp-action="Create" class="btn btn-success btn-custom shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Nova Categoria
     </a>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle-fill me-2"></i> Nenhuma categoria cadastrada.
+    <div class="alert alert-info text-center rounded shadow-sm">
+        <i class="bi bi-info-circle me-2"></i> Nenhuma categoria cadastrada.
     </div>
 }
 else
 {
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Nome</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    <div class="card-custom">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td>@item.Nome</td>
-                        <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-primary me-1">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
+                        <th class="ps-3">Nome</th>
+                        <th class="text-end pe-3">Ações</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">@item.Nome</td>
+                            <td class="text-end pe-3">
+                                <a asp-action="Details" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-info btn-custom me-1" title="Visualizar">
+                                    <i class="bi bi-eye-fill icon-action"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-primary btn-custom me-1" title="Editar">
+                                    <i class="bi bi-pencil-fill icon-action"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.CategoriaId" class="btn btn-sm btn-outline-danger btn-custom" title="Excluir">
+                                    <i class="bi bi-trash-fill icon-action"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }

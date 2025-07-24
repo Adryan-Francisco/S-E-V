@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using SEV.Data;
 using SEV.Utils; // <- Suponha que o binder esteja na pasta Utils
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Configura cultura pt-BR

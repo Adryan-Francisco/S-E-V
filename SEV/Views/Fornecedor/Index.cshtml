@@ -4,74 +4,90 @@
     ViewData["Title"] = "Fornecedores";
 }
 
-<h1 class="mb-4 text-primary">📦 Fornecedores</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="text-primary">
+            <i class="bi bi-truck me-2"></i> Fornecedores
+        </h1>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Fornecedor
+        </a>
+    </div>
 
-<div class="mb-3">
-    <a asp-action="Create" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Novo Fornecedor
-    </a>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center shadow-sm p-4">
+            <i class="bi bi-exclamation-circle me-2"></i> Nenhum fornecedor cadastrado até o momento.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>CNPJ</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Nome</td>
+                            <td>
+                                @{
+                                    string cnpj = new string(item.CNPJ?.Where(char.IsDigit).ToArray());
+                                    string cnpjFormatado = cnpj?.Length == 14
+                                    ? Convert.ToUInt64(cnpj).ToString(@"00\.000\.000\/0000\-00")
+                                    : item.CNPJ;
+                                }
+                                @cnpjFormatado
+                            </td>
+                            <td>
+                                @{
+                                    string telefone = item.Telefone?.Trim();
+                                    string telFormatado = telefone?.Length == 11
+                                    ? $"({telefone[..2]}) {telefone.Substring(2, 5)}-{telefone[7..]}"
+                                    : telefone?.Length == 10
+                                    ? $"({telefone[..2]}) {telefone.Substring(2, 4)}-{telefone[6..]}"
+                                    : telefone;
+                                }
+                                @telFormatado
+                            </td>
+                            <td>@item.Endereco</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.FornecedorId"
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Editar" data-bs-toggle="tooltip">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.FornecedorId"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Detalhes" data-bs-toggle="tooltip">
+                                        <i class="bi bi-info-circle"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.FornecedorId"
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Excluir" data-bs-toggle="tooltip">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        <i class="bi bi-exclamation-circle"></i> Nenhum fornecedor cadastrado até o momento.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle shadow-sm">
-            <thead class="table-light">
-                <tr>
-                    <th>@Html.DisplayNameFor(model => model.First().Nome)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().CNPJ)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Telefone)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Endereco)</th>
-                    <th class="text-end" style="width: 220px;">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Nome</td>
-
-                        <!-- Formatando CNPJ como 00.000.000/0000-00 -->
-                        @{
-                            string cnpjNumeros = new string(item.CNPJ.Where(char.IsDigit).ToArray());
-                            string cnpjFormatado = Convert.ToUInt64(cnpjNumeros).ToString(@"00\.000\.000\/0000\-00");
-                        }
-                        <td>@cnpjFormatado</td>
-
-                        <!-- Formatando telefone como (XX) XXXXX-XXXX -->
-                        <td>
-                            @{
-                                var tel = item.Telefone?.Trim();
-                                string telFormatado = tel?.Length == 11
-                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
-                                : tel?.Length == 10
-                                ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
-                                : tel;
-                            }
-                            @telFormatado
-                        </td>
-
-                        <td>@item.Endereco</td>
-                        <td class="text-end">
-                            <a asp-action="Edit" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-primary me-1">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a asp-action="Details" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-info me-1">
-                                <i class="bi bi-info-circle"></i>
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@item.FornecedorId" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+<!-- Ativar tooltips do Bootstrap -->
+<script>
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    tooltips.forEach(t => new bootstrap.Tooltip(t));
+</script>
