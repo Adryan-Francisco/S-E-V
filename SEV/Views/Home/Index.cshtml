@@ -1,8 +1,232 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Sistema de Vendas - SEV";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section text-center mb-5 animate-fade-in-up">
+    <div class="container">
+        <h1 class="display-4 text-gradient mb-4">
+            <i class="bi bi-shop me-3"></i>Sistema de Vendas SEV
+        </h1>
+        <p class="lead fs-4 text-muted mb-5">
+            Gerencie suas vendas, produtos e clientes com uma plataforma moderna e intuitiva
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg">
+                <i class="bi bi-speedometer2 me-2"></i>Acessar Dashboard
+            </a>
+            <a asp-controller="Vendas" asp-action="Index" class="btn btn-success btn-lg">
+                <i class="bi bi-cart-plus me-2"></i>Nova Venda
+            </a>
+        </div>
+    </div>
 </div>
+
+<div class="container">
+    <!-- Cards de Estatísticas Rápidas -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center h-100 animate-slide-in-left" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title text-primary">Produtos</h5>
+                    <p class="card-text">Gerencie seu catálogo de produtos com categorias e estoque</p>
+                    <a asp-controller="Produtos" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-right me-1"></i>Ver Produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center h-100 animate-slide-in-left" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title text-success">Clientes</h5>
+                    <p class="card-text">Cadastre e gerencie sua base de clientes</p>
+                    <a asp-controller="Clientes" asp-action="Index" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-arrow-right me-1"></i>Ver Clientes
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center h-100 animate-slide-in-left" style="animation-delay: 0.3s;">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="bi bi-cash-coin text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title text-warning">Vendas</h5>
+                    <p class="card-text">Processe vendas e acompanhe o faturamento</p>
+                    <a asp-controller="Vendas" asp-action="Index" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-arrow-right me-1"></i>Nova Venda
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center h-100 animate-slide-in-left" style="animation-delay: 0.4s;">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="bi bi-graph-up text-info" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title text-info">Relatórios</h5>
+                    <p class="card-text">Visualize relatórios e métricas de performance</p>
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-arrow-right me-1"></i>Ver Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Recursos -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Recursos Principais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                            <span>Gestão completa de produtos e estoque</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                            <span>Cadastro e controle de clientes</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                            <span>Processamento de vendas</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                            <span>Relatórios e dashboards</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-3"></i>
+                            <span>Interface responsiva e moderna</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-fill text-primary me-2"></i>Comece Agora
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a asp-controller="Produtos" asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Produto
+                        </a>
+                        <a asp-controller="Clientes" asp-action="Create" class="btn btn-success">
+                            <i class="bi bi-person-plus me-2"></i>Cadastrar Primeiro Cliente
+                        </a>
+                        <a asp-controller="Vendas" asp-action="Create" class="btn btn-warning">
+                            <i class="bi bi-cart-plus me-2"></i>Realizar Primeira Venda
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Tecnologias -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear-fill text-info me-2"></i>Tecnologias Utilizadas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-microsoft text-primary" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">ASP.NET Core</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-database text-success" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">Entity Framework</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-bootstrap text-primary" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">Bootstrap 5</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-code-slash text-warning" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">C#</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-filetype-sql text-danger" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">SQL Server</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="bi bi-github text-dark" style="font-size: 2.5rem;"></i>
+                                <p class="mt-2 mb-0 small">Git</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        padding: 4rem 0;
+        border-radius: 0 0 2rem 2rem;
+        margin: -1.5rem -1.5rem 3rem -1.5rem;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .bi {
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover .bi {
+        transform: scale(1.1);
+    }
+    
+    .btn-outline-primary:hover .bi,
+    .btn-outline-success:hover .bi,
+    .btn-outline-warning:hover .bi,
+    .btn-outline-info:hover .bi {
+        transform: translateX(3px);
+    }
+</style>

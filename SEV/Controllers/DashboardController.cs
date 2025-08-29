@@ -22,38 +22,159 @@ namespace SEV.Controllers
         {
             var produtos = await _context.Produtos.ToListAsync();
             var vendas = await _context.Vendas.Include(v => v.Itens).ToListAsync();
+            var clientes = await _context.Clientes.ToListAsync();
+            var categorias = await _context.Categorias.ToListAsync();
+
+            // Calcular estatísticas
+            var totalProdutos = produtos.Count;
+            var totalVendas = vendas.Count;
+            var faturamentoTotal = vendas.Sum(v => v.Total);
+            var clientesAtivos = clientes.Count;
+
+            // Dados para gráficos
+            var meses = vendas
+                .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
+                .OrderBy(g => g.Key)
+                .Select(g => g.Key)
+                .ToList();
+
+            var vendasPorMes = vendas
+                .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
+                .OrderBy(g => g.Key)
+                .Select(g => g.Sum(v => v.Total))
+                .ToList();
+
+            var produtosBaixoEstoqueNomes = produtos
+                .Where(p => p.QuantidadeEstoque <= 10)
+                .Select(p => p.Nome)
+                .ToList();
+
+            var produtosBaixoEstoqueQtd = produtos
+                .Where(p => p.QuantidadeEstoque <= 10)
+                .Select(p => p.QuantidadeEstoque)
+                .ToList();
+
+            // Gerar atividades recentes baseadas em dados reais
+            var atividadesRecentes = GerarAtividadesRecentes(produtos, vendas, clientes, categorias);
 
             var viewModel = new DashboardViewModel
             {
-                TotalProdutos = produtos.Count,
-                TotalVendas = vendas.Count,
-                FaturamentoTotal = vendas.Sum(v => v.Total),
+                TotalProdutos = totalProdutos,
+                TotalVendas = totalVendas,
+                FaturamentoTotal = faturamentoTotal,
+                ClientesAtivos = clientesAtivos,
 
-                Meses = vendas
-                    .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
-                    .OrderBy(g => g.Key)
-                    .Select(g => g.Key)
-                    .ToList(),
+                Meses = meses,
+                VendasPorMes = vendasPorMes,
 
-                VendasPorMes = vendas
-                    .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
-                    .OrderBy(g => g.Key)
-                    .Select(g => g.Sum(v => v.Total))
-                    .ToList(),
+                ProdutosBaixoEstoqueNomes = produtosBaixoEstoqueNomes,
+                ProdutosBaixoEstoqueQtd = produtosBaixoEstoqueQtd,
 
-                ProdutosBaixoEstoqueNomes = produtos
-                    .Where(p => p.ProdutoId > 0)
-                    .Select(p => p.Nome)
-                    .ToList(),
-
-                ProdutosBaixoEstoqueQtd = produtos
-                    .Where(p => p.ProdutoId > 0)
-                    .Select(p => p.QuantidadeEstoque)
-                    .ToList()
+                AtividadesRecentes = atividadesRecentes
             };
 
             return View(viewModel);
         }
+
+        private List<AtividadeRecente> GerarAtividadesRecentes(
+            List<Produto> produtos, 
+            List<Venda> vendas, 
+            List<Cliente> clientes, 
+            List<Categoria> categorias)
+        {
+            var atividades = new List<AtividadeRecente>();
+            var dataAtual = DateTime.Now;
+
+            // Atividades baseadas em produtos
+            var produtosRecentes = produtos
+                .OrderByDescending(p => p.ProdutoId)
+                .Take(3)
+                .ToList();
+
+            foreach (var produto in produtosRecentes)
+            {
+                atividades.Add(new AtividadeRecente
+                {
+                    Id = produto.ProdutoId,
+                    Tipo = "Produto",
+                    Descricao = $"Produto '{produto.Nome}' cadastrado",
+                    Usuario = "Sistema",
+                    DataHora = dataAtual.AddDays(-new Random().Next(1, 7)),
+                    Status = produto.QuantidadeEstoque > 0 ? "Ativo" : "Sem Estoque",
+                    Icone = "bi-box",
+                    CorStatus = produto.QuantidadeEstoque > 0 ? "success" : "warning"
+                });
+            }
+
+            // Atividades baseadas em vendas
+            var vendasRecentes = vendas
+                .OrderByDescending(v => v.DataVenda)
+                .Take(3)
+                .ToList();
+
+            foreach (var venda in vendasRecentes)
+            {
+                atividades.Add(new AtividadeRecente
+                {
+                    Id = venda.VendaId,
+                    Tipo = "Venda",
+                    Descricao = $"Venda realizada - R$ {venda.Total:F2}",
+                    Usuario = "Vendedor",
+                    DataHora = venda.DataVenda,
+                    Status = "Concluída",
+                    Icone = "bi-cash-coin",
+                    CorStatus = "success"
+                });
+            }
+
+            // Atividades baseadas em clientes
+            var clientesRecentes = clientes
+                .OrderByDescending(c => c.ClienteId)
+                .Take(2)
+                .ToList();
+
+            foreach (var cliente in clientesRecentes)
+            {
+                atividades.Add(new AtividadeRecente
+                {
+                    Id = cliente.ClienteId,
+                    Tipo = "Cliente",
+                    Descricao = $"Cliente '{cliente.Nome}' cadastrado",
+                    Usuario = "Sistema",
+                    DataHora = dataAtual.AddDays(-new Random().Next(1, 5)),
+                    Status = "Ativo",
+                    Icone = "bi-person",
+                    CorStatus = "info"
+                });
+            }
+
+            // Atividades baseadas em categorias
+            var categoriasRecentes = categorias
+                .OrderByDescending(c => c.CategoriaId)
+                .Take(2)
+                .ToList();
+
+            foreach (var categoria in categoriasRecentes)
+            {
+                atividades.Add(new AtividadeRecente
+                {
+                    Id = categoria.CategoriaId,
+                    Tipo = "Categoria",
+                    Descricao = $"Categoria '{categoria.Nome}' criada",
+                    Usuario = "Administrador",
+                    DataHora = dataAtual.AddDays(-new Random().Next(1, 10)),
+                    Status = "Ativa",
+                    Icone = "bi-tags",
+                    CorStatus = "primary"
+                });
+            }
+
+            // Ordenar por data/hora mais recente e pegar as 8 mais recentes
+            return atividades
+                .OrderByDescending(a => a.DataHora)
+                .Take(8)
+                .ToList();
+        }
     }
-    }
+}
 

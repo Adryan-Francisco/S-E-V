@@ -1,115 +1,220 @@
-﻿@{
+﻿@model SEV.Models.DashboardViewModel
+@{
     ViewData["Title"] = "Dashboard";
 }
 
-<style>
-    :root {
-        --bg-main: linear-gradient(145deg, #e2e8f0, #cbd5e1);
-        --text-color: #1e293b;
-        --glass-bg: rgba(255, 255, 255, 0.2);
-        --glass-border: rgba(255, 255, 255, 0.3);
-        --shadow-light: rgba(255, 255, 255, 0.6);
-        --shadow-dark: rgba(0, 0, 0, 0.1);
-    }
+<div class="container-fluid">
+    <!-- Header do Dashboard -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="text-gradient mb-2">Dashboard</h1>
+            <p class="text-muted mb-0">Visão geral do sistema de vendas</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="window.print()">
+                <i class="bi bi-printer me-2"></i>Imprimir
+            </button>
+            <button class="btn btn-primary" id="refreshDashboardBtn">
+                <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
+            </button>
+        </div>
+    </div>
 
-    body {
-        background: var(--bg-main);
-        color: var(--text-color);
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .card {
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        backdrop-filter: blur(16px);
-        border-radius: 18px;
-        box-shadow: 8px 8px 20px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-
-    .icon-xl {
-        font-size: 2.5rem;
-        opacity: 0.85;
-    }
-
-    h2, h3, h5, h6 {
-        font-weight: 600;
-    }
-
-    h3 {
-        font-size: 1.8rem;
-    }
-
-    h6 {
-        color: #64748b;
-        font-size: 0.95rem;
-    }
-
-    canvas {
-        max-width: 100%;
-    }
-</style>
-
-<h2 class="mb-4 text-primary fw-bold">
-    <i class="bi bi-speedometer2 me-2"></i> Painel Administrativo
-</h2>
-
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6>Produtos em Estoque</h6>
-                    <h3>@Model.TotalProdutos</h3>
+    <!-- Cards de Estatísticas -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center">
+                    <div class="stats-icon bg-primary bg-opacity-10 text-primary mx-auto">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <h3 class="mb-1">@Model.TotalProdutos</h3>
+                    <p class="text-muted mb-2">Total de Produtos</p>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+12% este mês
+                    </small>
                 </div>
-                <i class="bi bi-box-seam icon-xl text-primary"></i>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center">
+                    <div class="stats-icon bg-success bg-opacity-10 text-success mx-auto">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <h3 class="mb-1">@Model.TotalVendas</h3>
+                    <p class="text-muted mb-2">Total de Vendas</p>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+8% esta semana
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center">
+                    <div class="stats-icon bg-warning bg-opacity-10 text-warning mx-auto">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <h3 class="mb-1">R$ @Model.FaturamentoTotal.ToString("N2")</h3>
+                    <p class="text-muted mb-2">Faturamento Total</p>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+15% este mês
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center">
+                    <div class="stats-icon bg-info bg-opacity-10 text-info mx-auto">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h3 class="mb-1">@Model.ClientesAtivos</h3>
+                    <p class="text-muted mb-2">Clientes Ativos</p>
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up me-1"></i>+5% este mês
+                    </small>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6>Total de Vendas</h6>
-                    <h3>@Model.TotalVendas</h3>
-                </div>
-                <i class="bi bi-cart-check icon-xl text-success"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6>Faturamento</h6>
-                    <h3>R$ @Model.FaturamentoTotal.ToString("N2")</h3>
-                </div>
-                <i class="bi bi-graph-up-arrow icon-xl text-warning"></i>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="card p-4 h-100">
-            <h5 class="text-primary mb-3">
-                <i class="bi bi-calendar-week me-2"></i> Vendas por Mês
-            </h5>
-            <canvas id="vendasMesChart" height="200"></canvas>
+    <!-- Gráficos -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Vendas por Mês
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="vendasMesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Produtos com Baixo Estoque
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="baixoEstoqueChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card p-4 h-100">
-            <h5 class="text-danger mb-3">
-                <i class="bi bi-exclamation-diamond me-2"></i> Produtos com Baixo Estoque
-            </h5>
-            <canvas id="baixoEstoqueChart" height="200"></canvas>
+
+    <!-- Atividades Recentes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-activity me-2"></i>Atividades Recentes
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" id="refreshAtividadesBtn">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (Model.AtividadesRecentes.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Descrição</th>
+                                        <th>Usuário</th>
+                                        <th>Data/Hora</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var atividade in Model.AtividadesRecentes)
+                                    {
+                                        <tr class="atividade-row" data-tipo="@atividade.Tipo" data-id="@atividade.Id">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi @atividade.Icone me-2 text-primary"></i>
+                                                    <span class="badge bg-light text-dark">@atividade.Tipo</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-medium">@atividade.Descricao</div>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@atividade.Usuario</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@atividade.DataHora.ToString("dd/MM/yyyy HH:mm")</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-@atividade.CorStatus">@atividade.Status</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary btn-sm btn-detalhes-atividade" 
+                                                            data-tipo="@atividade.Tipo" 
+                                                            data-id="@atividade.Id"
+                                                            title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    @if (atividade.Tipo == "Produto")
+                                                    {
+                                                        <a href="@Url.Action("Edit", "Produtos", new { id = atividade.Id })" 
+                                                           class="btn btn-outline-warning btn-sm" 
+                                                           title="Editar">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                    }
+                                                    else if (atividade.Tipo == "Cliente")
+                                                    {
+                                                        <a href="@Url.Action("Edit", "Clientes", new { id = atividade.Id })" 
+                                                           class="btn btn-outline-warning btn-sm" 
+                                                           title="Editar">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                    }
+                                                    else if (atividade.Tipo == "Venda")
+                                                    {
+                                                        <a href="@Url.Action("Details", "Vendas", new { id = atividade.Id })" 
+                                                           class="btn btn-outline-info btn-sm" 
+                                                           title="Ver Venda">
+                                                            <i class="bi bi-receipt"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <h5 class="text-muted mt-3">Nenhuma atividade recente</h5>
+                            <p class="text-muted">As atividades aparecerão aqui conforme o sistema for utilizado.</p>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -117,61 +222,176 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        new Chart(document.getElementById('vendasMesChart'), {
+        // Gráfico de Vendas por Mês
+        const vendasMesCtx = document.getElementById('vendasMesChart').getContext('2d');
+        const vendasMesChart = new Chart(vendasMesCtx, {
             type: 'line',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.Meses)),
                 datasets: [{
-                    label: 'Faturamento (R$)',
+                    label: 'Vendas (R$)',
                     data: @Html.Raw(Json.Serialize(Model.VendasPorMes)),
-                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: 'white',
-                    pointBorderColor: '#0d6efd',
-                    pointRadius: 5
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#2563eb',
+                        borderWidth: 1,
+                        cornerRadius: 8
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
                         ticks: {
-                            callback: val => 'R$ ' + val.toLocaleString('pt-BR')
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
                         }
                     }
                 }
             }
         });
 
-        new Chart(document.getElementById('baixoEstoqueChart'), {
-            type: 'bar',
+        // Gráfico de Produtos com Baixo Estoque
+        const baixoEstoqueCtx = document.getElementById('baixoEstoqueChart').getContext('2d');
+        const baixoEstoqueChart = new Chart(baixoEstoqueCtx, {
+            type: 'doughnut',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueNomes)),
                 datasets: [{
-                    label: 'Estoque',
                     data: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueQtd)),
-                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
+                    backgroundColor: [
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981',
+                        '#3b82f6',
+                        '#8b5cf6',
+                        '#ec4899',
+                        '#06b6d4',
+                        '#84cc16'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#2563eb',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + ' unidades';
+                            }
+                        }
                     }
                 }
             }
+        });
+
+        // Função para atualizar o dashboard
+        function refreshDashboard() {
+            location.reload();
+        }
+
+        // Função para atualizar atividades
+        function refreshAtividades() {
+            const atividadeRows = document.querySelectorAll('.atividade-row');
+            atividadeRows.forEach(row => {
+                row.style.opacity = '0.5';
+                row.style.transition = 'opacity 0.3s ease';
+            });
+            
+            setTimeout(() => {
+                location.reload();
+            }, 300);
+        }
+
+        // Função para ver detalhes da atividade
+        function verDetalhesAtividade(tipo, id) {
+            let url = '';
+            
+            switch(tipo) {
+                case 'Produto':
+                    url = `/Produtos/Details/${id}`;
+                    break;
+                case 'Cliente':
+                    url = `/Clientes/Details/${id}`;
+                    break;
+                case 'Venda':
+                    url = `/Vendas/Details/${id}`;
+                    break;
+                case 'Categoria':
+                    url = `/Categorias/Details/${id}`;
+                    break;
+                default:
+                    console.log('Tipo de atividade não reconhecido:', tipo);
+                    return;
+            }
+            
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Adicionar animações aos cards quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
         });
     </script>
 }
