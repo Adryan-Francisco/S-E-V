@@ -22,7 +22,10 @@ namespace SEV.Controllers
         // GET: ItemVendas
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.ItensVenda.Include(i => i.Produto).Include(i => i.Venda);
+            var applicationDbContext = _context.ItensVenda
+                .Include(i => i.Produto)
+                .Include(i => i.Venda)
+                .ThenInclude(v => v.Cliente);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -37,6 +40,7 @@ namespace SEV.Controllers
             var itemVenda = await _context.ItensVenda
                 .Include(i => i.Produto)
                 .Include(i => i.Venda)
+                .ThenInclude(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.ItemVendaId == id);
             if (itemVenda == null)
             {
@@ -49,54 +53,72 @@ namespace SEV.Controllers
         // GET
         public IActionResult Create()
         {
-            ViewBag.VendaId = new SelectList(_context.Vendas.ToList(), "VendaId", "VendaId");
+            ViewBag.VendaId = new SelectList(
+                _context.Vendas
+                    .Include(v => v.Cliente)
+                    .Where(v => v.Cliente != null)
+                    .Select(v => new { 
+                        VendaId = v.VendaId, 
+                        DisplayText = $"Venda #{v.VendaId} - {v.Cliente.Nome} ({v.DataVenda:dd/MM/yyyy})" 
+                    }), 
+                "VendaId", 
+                "DisplayText"
+            );
             ViewBag.ProdutoId = new SelectList(_context.Produtos.ToList(), "ProdutoId", "Nome");
             return View();
         }
 
         // POST
-       [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
-{
-    if (ModelState.IsValid)
-    {
-        var produto = await _context.Produtos.FindAsync(itemVenda.ProdutoId);
-
-        if (produto == null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
         {
-            ModelState.AddModelError("", "Produto não encontrado.");
+            if (ModelState.IsValid)
+            {
+                var produto = await _context.Produtos.FindAsync(itemVenda.ProdutoId);
+
+                if (produto == null)
+                {
+                    ModelState.AddModelError("", "Produto não encontrado.");
+                    return View(itemVenda);
+                }
+
+                if (produto.QuantidadeEstoque < itemVenda.Quantidade)
+                {
+                    ModelState.AddModelError("", "Estoque insuficiente para este produto.");
+                    return View(itemVenda);
+                }
+
+                // Subtrair a quantidade vendida do estoque
+                produto.QuantidadeEstoque -= itemVenda.Quantidade;
+
+                // Registrar o preço atual
+                itemVenda.PrecoUnitario = produto.Preco;
+
+                _context.Add(itemVenda);
+                _context.Update(produto); // Atualiza o produto com estoque novo
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", "Vendas", new { id = itemVenda.VendaId });
+            }
+
+            ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
+            ViewData["VendaId"] = new SelectList(
+                _context.Vendas
+                    .Include(v => v.Cliente)
+                    .Where(v => v.Cliente != null)
+                    .Select(v => new { 
+                        VendaId = v.VendaId, 
+                        DisplayText = $"Venda #{v.VendaId} - {v.Cliente.Nome} ({v.DataVenda:dd/MM/yyyy})" 
+                    }), 
+                "VendaId", 
+                "DisplayText", 
+                itemVenda.VendaId
+            );
+
             return View(itemVenda);
         }
-
-        if (produto.QuantidadeEstoque < itemVenda.Quantidade)
-        {
-            ModelState.AddModelError("", "Estoque insuficiente para este produto.");
-            return View(itemVenda);
-        }
-
-        // Subtrair a quantidade vendida do estoque
-        produto.QuantidadeEstoque -= itemVenda.Quantidade;
-
-        // Registrar o preço atual
-        itemVenda.PrecoUnitario = produto.Preco;
-
-        _context.Add(itemVenda);
-        _context.Update(produto); // Atualiza o produto com estoque novo
-
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction("Details", "Vendas", new { id = itemVenda.VendaId });
-    }
-
-    ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
-    ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
-
-    return View(itemVenda);
-}
-
-
-
 
         // GET: ItemVendas/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -112,13 +134,22 @@ public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Qua
                 return NotFound();
             }
             ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
+            ViewData["VendaId"] = new SelectList(
+                _context.Vendas
+                    .Include(v => v.Cliente)
+                    .Where(v => v.Cliente != null)
+                    .Select(v => new { 
+                        VendaId = v.VendaId, 
+                        DisplayText = $"Venda #{v.VendaId} - {v.Cliente.Nome} ({v.DataVenda:dd/MM/yyyy})" 
+                    }), 
+                "VendaId", 
+                "DisplayText", 
+                itemVenda.VendaId
+            );
             return View(itemVenda);
         }
 
         // POST: ItemVendas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ItemVendaId,VendaId,ProdutoId,Quantidade,PrecoUnitario")] ItemVenda itemVenda)
@@ -149,7 +180,18 @@ public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Qua
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProdutoId"] = new SelectList(_context.Produtos, "ProdutoId", "Nome", itemVenda.ProdutoId);
-            ViewData["VendaId"] = new SelectList(_context.Vendas, "VendaId", "VendaId", itemVenda.VendaId);
+            ViewData["VendaId"] = new SelectList(
+                _context.Vendas
+                    .Include(v => v.Cliente)
+                    .Where(v => v.Cliente != null)
+                    .Select(v => new { 
+                        VendaId = v.VendaId, 
+                        DisplayText = $"Venda #{v.VendaId} - {v.Cliente.Nome} ({v.DataVenda:dd/MM/yyyy})" 
+                    }), 
+                "VendaId", 
+                "DisplayText", 
+                itemVenda.VendaId
+            );
             return View(itemVenda);
         }
 
@@ -164,6 +206,7 @@ public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Qua
             var itemVenda = await _context.ItensVenda
                 .Include(i => i.Produto)
                 .Include(i => i.Venda)
+                .ThenInclude(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.ItemVendaId == id);
 
             if (itemVenda == null)
@@ -198,7 +241,6 @@ public async Task<IActionResult> Create([Bind("ItemVendaId,VendaId,ProdutoId,Qua
 
             return RedirectToAction(nameof(Index));
         }
-
 
         private bool ItemVendaExists(int id)
         {

@@ -20,60 +20,84 @@ namespace SEV.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var produtos = await _context.Produtos.ToListAsync();
-            var vendas = await _context.Vendas.Include(v => v.Itens).ToListAsync();
-            var clientes = await _context.Clientes.ToListAsync();
-            var categorias = await _context.Categorias.ToListAsync();
-
-            // Calcular estatísticas
-            var totalProdutos = produtos.Count;
-            var totalVendas = vendas.Count;
-            var faturamentoTotal = vendas.Sum(v => v.Total);
-            var clientesAtivos = clientes.Count;
-
-            // Dados para gráficos
-            var meses = vendas
-                .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
-                .OrderBy(g => g.Key)
-                .Select(g => g.Key)
-                .ToList();
-
-            var vendasPorMes = vendas
-                .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
-                .OrderBy(g => g.Key)
-                .Select(g => g.Sum(v => v.Total))
-                .ToList();
-
-            var produtosBaixoEstoqueNomes = produtos
-                .Where(p => p.QuantidadeEstoque <= 10)
-                .Select(p => p.Nome)
-                .ToList();
-
-            var produtosBaixoEstoqueQtd = produtos
-                .Where(p => p.QuantidadeEstoque <= 10)
-                .Select(p => p.QuantidadeEstoque)
-                .ToList();
-
-            // Gerar atividades recentes baseadas em dados reais
-            var atividadesRecentes = GerarAtividadesRecentes(produtos, vendas, clientes, categorias);
-
-            var viewModel = new DashboardViewModel
+            try
             {
-                TotalProdutos = totalProdutos,
-                TotalVendas = totalVendas,
-                FaturamentoTotal = faturamentoTotal,
-                ClientesAtivos = clientesAtivos,
+                var produtos = await _context.Produtos.ToListAsync();
+                var vendas = await _context.Vendas.Include(v => v.Itens).ToListAsync();
+                var clientes = await _context.Clientes.ToListAsync();
+                var categorias = await _context.Categorias.ToListAsync();
 
-                Meses = meses,
-                VendasPorMes = vendasPorMes,
+                // Log para debug
+                System.Diagnostics.Debug.WriteLine($"Dashboard - Produtos: {produtos.Count}, Vendas: {vendas.Count}, Clientes: {clientes.Count}");
 
-                ProdutosBaixoEstoqueNomes = produtosBaixoEstoqueNomes,
-                ProdutosBaixoEstoqueQtd = produtosBaixoEstoqueQtd,
+                // Calcular estatísticas
+                var totalProdutos = produtos.Count;
+                var totalVendas = vendas.Count;
+                var faturamentoTotal = vendas.Sum(v => v.Total);
+                var clientesAtivos = clientes.Count;
 
-                AtividadesRecentes = atividadesRecentes
-            };
+                // Dados para gráficos
+                var meses = vendas
+                    .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
+                    .OrderBy(g => g.Key)
+                    .Select(g => g.Key)
+                    .ToList();
 
-            return View(viewModel);
+                var vendasPorMes = vendas
+                    .GroupBy(v => v.DataVenda.ToString("MM/yyyy"))
+                    .OrderBy(g => g.Key)
+                    .Select(g => g.Sum(v => v.Total))
+                    .ToList();
+
+                var produtosBaixoEstoqueNomes = produtos
+                    .Where(p => p.QuantidadeEstoque <= 10)
+                    .Select(p => p.Nome)
+                    .ToList();
+
+                var produtosBaixoEstoqueQtd = produtos
+                    .Where(p => p.QuantidadeEstoque <= 10)
+                    .Select(p => p.QuantidadeEstoque)
+                    .ToList();
+
+                // Gerar atividades recentes baseadas em dados reais
+                var atividadesRecentes = GerarAtividadesRecentes(produtos, vendas, clientes, categorias);
+
+                var viewModel = new DashboardViewModel
+                {
+                    TotalProdutos = totalProdutos,
+                    TotalVendas = totalVendas,
+                    FaturamentoTotal = faturamentoTotal,
+                    ClientesAtivos = clientesAtivos,
+
+                    Meses = meses,
+                    VendasPorMes = vendasPorMes,
+
+                    ProdutosBaixoEstoqueNomes = produtosBaixoEstoqueNomes,
+                    ProdutosBaixoEstoqueQtd = produtosBaixoEstoqueQtd,
+
+                    AtividadesRecentes = atividadesRecentes
+                };
+                
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro no Dashboard: {ex.Message}");
+                // Em caso de erro, retorna um viewModel vazio
+                var viewModel = new DashboardViewModel
+                {
+                    TotalProdutos = 0,
+                    TotalVendas = 0,
+                    FaturamentoTotal = 0,
+                    ClientesAtivos = 0,
+                    Meses = new List<string>(),
+                    VendasPorMes = new List<decimal>(),
+                    ProdutosBaixoEstoqueNomes = new List<string>(),
+                    ProdutosBaixoEstoqueQtd = new List<int>(),
+                    AtividadesRecentes = new List<AtividadeRecente>()
+                };
+                return View(viewModel);
+            }
         }
 
         private List<AtividadeRecente> GerarAtividadesRecentes(

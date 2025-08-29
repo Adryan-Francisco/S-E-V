@@ -12,10 +12,14 @@
 
 <dl class="row">
     <dt class="col-sm-3 fw-bold">
-        Venda Nº
+        Cliente
     </dt>
     <dd class="col-sm-9">
-        @Model.Venda?.VendaId
+        <strong>@(Model.Venda?.Cliente?.Nome ?? "Cliente não informado")</strong>
+        <br>
+        <small class="text-muted">
+            Venda #@Model.Venda?.VendaId - @(Model.Venda?.DataVenda.ToString("dd/MM/yyyy") ?? "Data não informada")
+        </small>
     </dd>
 
     <dt class="col-sm-3 fw-bold">

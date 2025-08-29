@@ -15,8 +15,11 @@
 
             <div class="mb-3">
                 <label asp-for="VendaId" class="form-label fw-bold">Venda</label>
-                <select asp-for="VendaId" class="form-control" asp-items="ViewBag.VendaId"></select>
+                <select asp-for="VendaId" class="form-control" asp-items="ViewBag.VendaId">
+                    <option value="">-- Selecione uma venda --</option>
+                </select>
                 <span asp-validation-for="VendaId" class="text-danger"></span>
+                <small class="form-text text-muted">Selecione a venda para adicionar o item</small>
             </div>
 
             <div class="mb-3">

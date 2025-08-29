@@ -22,8 +22,25 @@ namespace SEV.Controllers
         // GET: Produtoes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Produtos.Include(p => p.Categoria).Include(p => p.Fornecedor);
-            return View(await applicationDbContext.ToListAsync());
+            try
+            {
+                var produtos = await _context.Produtos.Include(p => p.Categoria).Include(p => p.Fornecedor).ToListAsync();
+                
+                // Log para debug
+                System.Diagnostics.Debug.WriteLine($"Produtos encontrados: {produtos.Count}");
+                foreach (var produto in produtos)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Produto: {produto.Nome}, Estoque: {produto.QuantidadeEstoque}");
+                }
+                
+                return View(produtos);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao carregar produtos: {ex.Message}");
+                // Em caso de erro, retorna uma lista vazia
+                return View(new List<Produto>());
+            }
         }
 
         // GET: Produtoes/Details/5
