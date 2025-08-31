@@ -1,0 +1,325 @@
+@model SEV.Models.VendaCompletaViewModel
+
+@{
+    ViewData["Title"] = "Editar Venda";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">
+        <i class="bi bi-pencil-square text-warning"></i> Editar Venda
+    </h1>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Informações da Venda</h5>
+            </div>
+            <div class="card-body">
+                <form id="vendaForm">
+                    <div class="mb-3">
+                        <label for="DataVenda" class="form-label fw-bold">Data da Venda</label>
+                        <input type="date" class="form-control" id="DataVenda" name="DataVenda" 
+                               value="@Model.DataVenda.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ClienteId" class="form-label fw-bold">Cliente</label>
+                        <select class="form-control" id="ClienteId" name="ClienteId" required>
+                            <option value="">Selecione um cliente</option>
+                            @foreach (var item in ViewBag.ClienteId)
+                            {
+                                <option value="@item.Value" selected="@(item.Value == Model.ClienteId.ToString())">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Total da Venda:</span>
+                            <span class="h5 mb-0 text-success" id="totalVenda">R$ @Model.Total.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span class="text-muted">Itens:</span>
+                            <span class="badge bg-secondary" id="totalItens">@Model.TotalItens</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Itens da Venda</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <button type="button" class="btn btn-success" onclick="adicionarItem()">
+                        <i class="bi bi-plus-circle"></i> Adicionar Item
+                    </button>
+                </div>
+
+                <div id="itensContainer">
+                    @if (Model.Itens != null && Model.Itens.Any())
+                    {
+                        foreach (var item in Model.Itens)
+                        {
+                            <div class="item-venda border rounded p-3 mb-3" data-item-index="@Model.Itens.IndexOf(item)">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Produto</label>
+                                        <select class="form-control produto-select" required>
+                                            <option value="">Selecione um produto</option>
+                                            @foreach (var produto in ViewBag.Produtos)
+                                            {
+                                                <option value="@produto.ProdutoId" 
+                                                        data-preco="@produto.Preco" 
+                                                        data-estoque="@produto.QuantidadeEstoque"
+                                                        selected="@(produto.ProdutoId == item.ProdutoId)">
+                                                    @produto.Nome - R$ @produto.Preco.ToString("N2") (Estoque: @produto.QuantidadeEstoque)
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-bold">Quantidade</label>
+                                        <input type="number" class="form-control quantidade-input" min="1" 
+                                               value="@item.Quantidade" required />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-bold">Preço Unit.</label>
+                                        <input type="text" class="form-control preco-input" readonly 
+                                               value="R$ @item.PrecoUnitario.ToString("N2")" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-bold">Subtotal</label>
+                                        <input type="text" class="form-control subtotal-input" readonly 
+                                               value="R$ @item.Subtotal.ToString("N2")" />
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-outline-danger" onclick="removerItem(this)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" class="btn btn-warning btn-lg" onclick="salvarVenda()">
+                        <i class="bi bi-check-circle"></i> Atualizar Venda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template para item da venda -->
+<template id="itemTemplate">
+    <div class="item-venda border rounded p-3 mb-3" data-item-index="">
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Produto</label>
+                <select class="form-control produto-select" required>
+                    <option value="">Selecione um produto</option>
+                    @foreach (var produto in ViewBag.Produtos)
+                    {
+                        <option value="@produto.ProdutoId" 
+                                data-preco="@produto.Preco" 
+                                data-estoque="@produto.QuantidadeEstoque">
+                            @produto.Nome - R$ @produto.Preco.ToString("N2") (Estoque: @produto.QuantidadeEstoque)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Quantidade</label>
+                <input type="number" class="form-control quantidade-input" min="1" value="1" required />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Preço Unit.</label>
+                <input type="text" class="form-control preco-input" readonly />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Subtotal</label>
+                <input type="text" class="form-control subtotal-input" readonly />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-danger" onclick="removerItem(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+@section Scripts {
+    <script>
+        let itemIndex = @(Model.Itens?.Count ?? 0);
+
+        function adicionarItem() {
+            const container = document.getElementById('itensContainer');
+            const template = document.getElementById('itemTemplate');
+            const clone = template.content.cloneNode(true);
+            
+            const itemDiv = clone.querySelector('.item-venda');
+            itemDiv.setAttribute('data-item-index', itemIndex);
+            
+            // Configurar eventos
+            const produtoSelect = itemDiv.querySelector('.produto-select');
+            const quantidadeInput = itemDiv.querySelector('.quantidade-input');
+            const precoInput = itemDiv.querySelector('.preco-input');
+            const subtotalInput = itemDiv.querySelector('.subtotal-input');
+            
+            produtoSelect.addEventListener('change', function() {
+                const option = this.options[this.selectedIndex];
+                const preco = option.dataset.preco;
+                const estoque = option.dataset.estoque;
+                
+                precoInput.value = preco ? `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}` : '';
+                quantidadeInput.max = estoque || 1;
+                calcularSubtotal(itemDiv);
+            });
+            
+            quantidadeInput.addEventListener('input', function() {
+                calcularSubtotal(itemDiv);
+            });
+            
+            container.appendChild(clone);
+            itemIndex++;
+            atualizarTotais();
+        }
+
+        function removerItem(button) {
+            button.closest('.item-venda').remove();
+            atualizarTotais();
+        }
+
+        function calcularSubtotal(itemDiv) {
+            const quantidade = parseInt(itemDiv.querySelector('.quantidade-input').value) || 0;
+            const preco = parseFloat(itemDiv.querySelector('.produto-select').options[
+                itemDiv.querySelector('.produto-select').selectedIndex
+            ]?.dataset.preco) || 0;
+            
+            const subtotal = quantidade * preco;
+            itemDiv.querySelector('.subtotal-input').value = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            
+            atualizarTotais();
+        }
+
+        function atualizarTotais() {
+            let total = 0;
+            let totalItens = 0;
+            
+            document.querySelectorAll('.item-venda').forEach(item => {
+                const quantidade = parseInt(item.querySelector('.quantidade-input').value) || 0;
+                const preco = parseFloat(item.querySelector('.produto-select').options[
+                    item.querySelector('.produto-select').selectedIndex
+                ]?.dataset.preco) || 0;
+                
+                total += quantidade * preco;
+                totalItens += quantidade;
+            });
+            
+            document.getElementById('totalVenda').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalItens').textContent = totalItens;
+        }
+
+        function salvarVenda() {
+            // Validar formulário
+            if (!document.getElementById('vendaForm').checkValidity()) {
+                document.getElementById('vendaForm').reportValidity();
+                return;
+            }
+
+            const itens = [];
+            let temItens = false;
+            
+            document.querySelectorAll('.item-venda').forEach(item => {
+                const produtoId = item.querySelector('.produto-select').value;
+                const quantidade = parseInt(item.querySelector('.quantidade-input').value);
+                
+                if (produtoId && quantidade > 0) {
+                    const preco = parseFloat(item.querySelector('.produto-select').options[
+                        item.querySelector('.produto-select').selectedIndex
+                    ].dataset.preco);
+                    
+                    itens.push({
+                        produtoId: parseInt(produtoId),
+                        quantidade: quantidade,
+                        precoUnitario: preco
+                    });
+                    temItens = true;
+                }
+            });
+            
+            if (!temItens) {
+                alert('Adicione pelo menos um item à venda');
+                return;
+            }
+
+            const vendaData = {
+                dataVenda: document.getElementById('DataVenda').value,
+                clienteId: parseInt(document.getElementById('ClienteId').value),
+                itens: itens
+            };
+
+            // Enviar para o servidor
+            fetch('@Url.Action("Edit", "VendasCompletas", new { id = ViewContext.RouteData.Values["id"] })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(vendaData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '@Url.Action("Index", "VendasCompletas")';
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar a venda');
+            });
+        }
+
+        // Configurar eventos para itens existentes
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.item-venda').forEach(item => {
+                const produtoSelect = item.querySelector('.produto-select');
+                const quantidadeInput = item.querySelector('.quantidade-input');
+                
+                produtoSelect.addEventListener('change', function() {
+                    const option = this.options[this.selectedIndex];
+                    const preco = option.dataset.preco;
+                    const estoque = option.dataset.estoque;
+                    
+                    const precoInput = item.querySelector('.preco-input');
+                    precoInput.value = preco ? `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}` : '';
+                    quantidadeInput.max = estoque || 1;
+                    calcularSubtotal(item);
+                });
+                
+                quantidadeInput.addEventListener('input', function() {
+                    calcularSubtotal(item);
+                });
+            });
+        });
+    </script>
+}

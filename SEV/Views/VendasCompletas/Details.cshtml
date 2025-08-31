@@ -1,0 +1,210 @@
+@model SEV.Models.Venda
+
+@{
+    ViewData["Title"] = $"Venda #{Model.VendaId}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">
+        <i class="bi bi-cart-check text-primary"></i> Venda #@Model.VendaId
+    </h1>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.VendaId" class="btn btn-warning me-2">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Informações da Venda</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>ID:</strong><br>
+                        <span class="badge bg-primary">#@Model.VendaId</span>
+                    </div>
+                    <div class="col-6">
+                        <strong>Data:</strong><br>
+                        <i class="bi bi-calendar-event text-muted"></i>
+                        @Model.DataVenda.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Cliente:</strong><br>
+                    <div class="d-flex align-items-center mt-1">
+                        <i class="bi bi-person-circle text-info me-2"></i>
+                        <span class="fw-medium">@(Model.Cliente?.Nome ?? "Cliente não encontrado")</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Total da Venda:</span>
+                        <span class="h4 mb-0">R$ @Model.TotalCalculado.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-muted">Itens:</span>
+                        <span class="badge bg-secondary">@(Model.Itens?.Count ?? 0)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Resumo</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-primary mb-0">@(Model.Itens?.Count ?? 0)</h4>
+                            <small class="text-muted">Produtos</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-0">@(Model.Itens?.Sum(i => i.Quantidade) ?? 0)</h4>
+                        <small class="text-muted">Unidades</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Itens da Venda</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Itens == null || !Model.Itens.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-cart-x display-4 text-muted"></i>
+                        <h5 class="text-muted mt-3">Nenhum item encontrado</h5>
+                        <p class="text-muted">Esta venda não possui itens</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th class="text-center">Quantidade</th>
+                                    <th class="text-end">Preço Unit.</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Itens)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-box text-primary me-2"></i>
+                                                <div>
+                                                    <span class="fw-medium">@(item.Produto?.Nome ?? "Produto não encontrado")</span>
+                                                    @if (item.Produto?.Categoria != null)
+                                                    {
+                                                        <br><small class="text-muted">@item.Produto.Categoria.Nome</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">@item.Quantidade</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-medium">R$ @item.PrecoUnitario.ToString("N2")</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold text-success">R$ @item.Subtotal.ToString("N2")</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total:</td>
+                                    <td class="text-end fw-bold text-success h5 mb-0">
+                                        R$ @Model.Total.ToString("N2")
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (Model.Itens?.Any() == true)
+        {
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Recibo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="imprimirRecibo()">
+                                <i class="bi bi-printer"></i> Imprimir Recibo
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="enviarPorEmail()">
+                                <i class="bi bi-envelope"></i> Enviar por Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function imprimirRecibo() {
+            const conteudo = `
+                <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
+                    <h2 style="text-align: center; color: #333;">Recibo de Venda</h2>
+                    <hr>
+                    <p><strong>Venda #@Model.VendaId</strong></p>
+                    <p><strong>Data:</strong> @Model.DataVenda.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Cliente:</strong> @(Model.Cliente?.Nome ?? "N/A")</p>
+                    <hr>
+                    <h4>Itens:</h4>
+                    @if (Model.Itens != null)
+                    {
+                        foreach (var item in Model.Itens)
+                        {
+                            <p>@(item.Produto?.Nome ?? "N/A") - Qtd: @item.Quantidade - R$ @item.PrecoUnitario.ToString("N2")</p>
+                        }
+                    }
+                    <hr>
+                    <h3 style="text-align: right; color: #28a745;">Total: R$ @Model.TotalCalculado.ToString("N2")</h3>
+                    <p style="text-align: center; color: #666; font-size: 12px;">Obrigado pela preferência!</p>
+                </div>
+            `;
+            
+            const janela = window.open('', '_blank');
+            janela.document.write(conteudo);
+            janela.document.close();
+            janela.print();
+        }
+
+        function enviarPorEmail() {
+            alert('Funcionalidade de envio por email será implementada em breve!');
+        }
+    </script>
+}

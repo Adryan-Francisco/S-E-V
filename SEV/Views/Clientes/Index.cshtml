@@ -4,106 +4,575 @@
     ViewData["Title"] = "Clientes";
 }
 
-<style>
-    .card-custom {
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-        padding: 24px;
-    }
-
-    .btn-custom {
-        transition: all 0.2s ease-in-out;
-    }
-
-        .btn-custom:hover {
-            transform: scale(1.05);
-        }
-
-    .icon-action {
-        font-size: 1.1rem;
-    }
-
-    .table th, .table td {
-        vertical-align: middle;
-    }
-</style>
-
-<h2 class="mb-4 text-primary fw-bold">
-    <i class="bi bi-people-fill me-2"></i> Clientes
-</h2>
-
-<div class="mb-3 d-flex justify-content-end">
-    <a asp-action="Create" class="btn btn-success btn-custom shadow-sm">
-        <i class="bi bi-person-plus-fill me-1"></i> Novo Cliente
-    </a>
-</div>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info text-center rounded shadow-sm">
-        <i class="bi bi-info-circle me-2"></i> Nenhum cliente cadastrado ainda.
-    </div>
-}
-else
-{
-    <div class="card-custom">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>Endereço</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.Nome</td>
-
-                            <td>
-                                @{
-                                    var cpf = item.CPF?.PadLeft(11, '0');
-                                    var cpfFormatado = cpf?.Length == 11
-                                    ? $"{cpf.Substring(0, 3)}.{cpf.Substring(3, 3)}.{cpf.Substring(6, 3)}-{cpf.Substring(9, 2)}"
-                                    : item.CPF;
-                                }
-                                @cpfFormatado
-                            </td>
-
-                            <td>
-                                @{
-                                    var tel = item.Telefone?.Trim();
-                                    var telFormatado = tel?.Length == 11
-                                    ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7)}"
-                                    : tel?.Length == 10
-                                    ? $"({tel.Substring(0, 2)}) {tel.Substring(2, 4)}-{tel.Substring(6)}"
-                                    : tel;
-                                }
-                                @telFormatado
-                            </td>
-
-                            <td>@item.Endereco</td>
-
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-info btn-custom me-1" title="Visualizar">
-                                    <i class="bi bi-eye-fill icon-action"></i>
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-primary btn-custom me-1" title="Editar">
-                                    <i class="bi bi-pencil-fill icon-action"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.ClienteId" class="btn btn-sm btn-outline-danger btn-custom" title="Excluir">
-                                    <i class="bi bi-trash-fill icon-action"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+<div class="container-fluid">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-gradient mb-2">
+                        <i class="bi bi-people me-3"></i>Clientes
+                    </h1>
+                    <p class="text-muted mb-0">Gerencie sua base de clientes e relacionamentos</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info" onclick="exportarClientes()" title="Exportar para Excel">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Exportar
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="mostrarRelatorioClientes()" title="Relatório de Clientes">
+                        <i class="bi bi-graph-up me-2"></i>Relatório
+                    </button>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Novo Cliente
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-primary bg-opacity-10 border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people text-primary stats-icon"></i>
+                    <h4 class="text-primary mt-2 mb-1 fw-bold">@Model.Count()</h4>
+                    <small class="text-muted">Total de Clientes</small>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">@Model.Count(c => !string.IsNullOrEmpty(c.Telefone)) com telefone</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-success bg-opacity-10 border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt text-success stats-icon"></i>
+                    <h4 class="text-success mt-2 mb-1 fw-bold">@Model.Count(c => !string.IsNullOrEmpty(c.Endereco))</h4>
+                    <small class="text-muted">Com Endereço</small>
+                    <div class="mt-2">
+                        <span class="badge bg-success">@Model.Count(c => !string.IsNullOrEmpty(c.CPF)) com CPF</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-info bg-opacity-10 border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-telephone text-info stats-icon"></i>
+                    <h4 class="text-info mt-2 mb-1 fw-bold">@Model.Count(c => !string.IsNullOrEmpty(c.Telefone))</h4>
+                    <small class="text-muted">Com Telefone</small>
+                    <div class="mt-2">
+                        <span class="badge bg-info">@Model.Count(c => !string.IsNullOrEmpty(c.Telefone) && !string.IsNullOrEmpty(c.Endereco)) completos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-warning bg-opacity-10 border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-event text-warning stats-icon"></i>
+                    <h4 class="text-warning mt-2 mb-1 fw-bold">@Model.Count(c => c.ClienteId > Model.Max(cl => cl.ClienteId) - 5)</h4>
+                    <small class="text-muted">Novos (últimos 5)</small>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Recém cadastrados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card text-center py-5 border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="bi bi-people text-muted empty-state-icon"></i>
+                        <h4 class="text-muted mt-3">Nenhum cliente cadastrado</h4>
+                        <p class="text-muted mb-4">Comece cadastrando seu primeiro cliente para expandir sua base</p>
+                        <a asp-action="Create" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Cliente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Filtros e Busca Avançada -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel me-2 text-primary"></i>Filtros e Busca
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar clientes...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="enderecoFilter" class="form-select">
+                                    <option value="">Todos os Endereços</option>
+                                    @foreach (var endereco in Model.Select(c => c.Endereco).Where(e => !string.IsNullOrEmpty(e)).Distinct().OrderBy(e => e))
+                                    {
+                                        <option value="@endereco">@endereco</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="cpfFilter" class="form-select">
+                                    <option value="">Todos os CPFs</option>
+                                    @foreach (var cpf in Model.Select(c => c.CPF).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c))
+                                    {
+                                        <option value="@cpf">@cpf</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" onclick="limparFiltros()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Clientes -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul me-2 text-primary"></i>Lista de Clientes
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <span class="text-muted">@Model.Count() cliente(s) encontrado(s)</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="clientesTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <i class="bi bi-person me-2"></i>Cliente
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-geo-alt me-2"></i>Localização
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-telephone me-2"></i>Contato
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-calendar me-2"></i>Cadastro
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-info-circle me-2"></i>Status
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-gear me-2"></i>Ações
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cliente in Model.OrderBy(c => c.Nome))
+                                    {
+                                        <tr class="cliente-row" data-endereco="@(cliente.Endereco ?? "")" data-cpf="@(cliente.CPF ?? "")">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="cliente-avatar me-3">
+                                                        <i class="bi bi-person text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1 fw-bold">@cliente.Nome</h6>
+                                                        <small class="text-muted">@cliente.CPF</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div class="fw-medium">@cliente.Endereco</div>
+                                                    <small class="text-muted">CPF: @cliente.CPF</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @if (!string.IsNullOrEmpty(cliente.Telefone))
+                                                    {
+                                                        <div class="fw-medium">
+                                                            <i class="bi bi-telephone me-1 text-success"></i>@cliente.Telefone
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(cliente.Endereco))
+                                                    {
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-geo-alt me-1"></i>@cliente.Endereco
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div class="fw-medium">ID: @cliente.ClienteId</div>
+                                                    <small class="text-muted">Cliente ativo</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(cliente.Telefone) && !string.IsNullOrEmpty(cliente.Endereco))
+                                                {
+                                                    <span class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-check-circle me-1"></i>Completo
+                                                    </span>
+                                                }
+                                                else if (!string.IsNullOrEmpty(cliente.Telefone) || !string.IsNullOrEmpty(cliente.Endereco))
+                                                {
+                                                    <span class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Parcial
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger bg-opacity-75">
+                                                        <i class="bi bi-x-circle me-1"></i>Incompleto
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("Details", new { id = cliente.ClienteId })" 
+                                                       class="btn btn-outline-info" title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = cliente.ClienteId })" 
+                                                       class="btn btn-outline-warning" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Delete", new { id = cliente.ClienteId })" 
+                                                       class="btn btn-outline-danger" title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de Relatório de Clientes -->
+<div class="modal fade" id="relatorioClientesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-graph-up me-2 text-primary"></i>Relatório de Clientes
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Distribuição por Endereço</h6>
+                                <div id="estadoChartContainer" style="height: 200px;">
+                                    <canvas id="estadoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Status dos Cadastros</h6>
+                                <div id="statusChartContainer" style="height: 200px;">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Top 5 Endereços com Mais Clientes:</h6>
+                    <div class="list-group">
+                        @foreach (var endereco in Model.GroupBy(c => c.Endereco).Where(g => !string.IsNullOrEmpty(g.Key)).OrderByDescending(g => g.Count()).Take(5))
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@endereco.Key</strong>
+                                    <br>
+                                    <small class="text-muted">@endereco.First().CPF</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">
+                                        @endereco.Count() cliente(s)
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="exportarRelatorio()">
+                    <i class="bi bi-download me-2"></i>Exportar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Função de busca e filtros
+        function filtrarClientes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const enderecoFilter = document.getElementById('enderecoFilter').value;
+            const cpfFilter = document.getElementById('cpfFilter').value;
+            
+            const rows = document.querySelectorAll('.cliente-row');
+            
+            rows.forEach(row => {
+                const nome = row.querySelector('h6').textContent.toLowerCase();
+                const endereco = row.dataset.endereco;
+                const cpf = row.dataset.cpf;
+                
+                let showRow = true;
+                
+                // Filtro de busca
+                if (searchTerm && !nome.includes(searchTerm)) {
+                    showRow = false;
+                }
+                
+                // Filtro de endereço
+                if (enderecoFilter && endereco !== enderecoFilter) {
+                    showRow = false;
+                }
+                
+                // Filtro de CPF
+                if (cpfFilter && cpf !== cpfFilter) {
+                    showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+            
+            // Atualizar contador
+            const visibleRows = document.querySelectorAll('.cliente-row[style=""]').length;
+            document.querySelector('.text-muted').textContent = `${visibleRows} cliente(s) encontrado(s)`;
+        }
+        
+        // Limpar filtros
+        function limparFiltros() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('enderecoFilter').value = '';
+            document.getElementById('cpfFilter').value = '';
+            filtrarClientes();
+        }
+        
+        // Exportar clientes
+        function exportarClientes() {
+            const table = document.getElementById('clientesTable');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            let csv = 'Cliente,CPF,Cidade,Estado,Telefone,Email,Status\n';
+            
+            rows.slice(1).forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    const nome = cells[0].querySelector('h6').textContent;
+                    const cpf = cells[0].querySelector('small').textContent;
+                    const cidade = cells[1].querySelector('.fw-medium').textContent;
+                    const estado = cells[1].querySelector('small').textContent;
+                    const telefone = cells[2].querySelector('.fw-medium')?.textContent.replace('📞', '').trim() || '';
+                    const email = cells[2].querySelector('small')?.textContent.replace('✉️', '').trim() || '';
+                    const status = cells[4].querySelector('.badge').textContent;
+                    
+                    csv += `"${nome}","${cpf}","${cidade}","${estado}","${telefone}","${email}","${status}"\n`;
+                }
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'clientes.csv';
+            link.click();
+        }
+        
+        // Mostrar relatório de clientes
+        function mostrarRelatorioClientes() {
+            const modal = new bootstrap.Modal(document.getElementById('relatorioClientesModal'));
+            modal.show();
+            
+            // Criar gráficos
+            setTimeout(() => {
+                // Gráfico de endereços
+                const enderecoCtx = document.getElementById('estadoChart').getContext('2d');
+                const enderecos = @Html.Raw(Json.Serialize(Model.GroupBy(c => c.Endereco).Where(g => !string.IsNullOrEmpty(g.Key)).Select(g => new { Nome = g.Key, Quantidade = g.Count() })));
+                
+                new Chart(enderecoCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: enderecos.map(e => e.Nome),
+                        datasets: [{
+                            data: enderecos.map(e => e.Quantidade),
+                            backgroundColor: [
+                                '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4',
+                                '#84cc16', '#f59e0b', '#ef4444', '#10b981'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                
+                // Gráfico de status
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+                const totalClientes = @Model.Count();
+                const completos = @Model.Count(c => !string.IsNullOrEmpty(c.Telefone) && !string.IsNullOrEmpty(c.Endereco));
+                const parciais = @Model.Count(c => (!string.IsNullOrEmpty(c.Telefone) || !string.IsNullOrEmpty(c.Endereco)) && (string.IsNullOrEmpty(c.Telefone) || string.IsNullOrEmpty(c.Endereco)));
+                const incompletos = @Model.Count(c => string.IsNullOrEmpty(c.Telefone) && string.IsNullOrEmpty(c.Endereco));
+                
+                new Chart(statusCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completos', 'Parciais', 'Incompletos'],
+                        datasets: [{
+                            data: [completos, parciais, incompletos],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // Exportar relatório
+        function exportarRelatorio() {
+            const relatorio = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                totalClientes: @Model.Count(),
+                totalEnderecos: @Model.Select(c => c.Endereco).Where(e => !string.IsNullOrEmpty(e)).Distinct().Count(),
+                totalCPFs: @Model.Select(c => c.CPF).Where(c => !string.IsNullOrEmpty(c)).Distinct().Count(),
+                clientesCompletos: @Model.Count(c => !string.IsNullOrEmpty(c.Telefone) && !string.IsNullOrEmpty(c.Endereco)),
+                clientesParciais: @Model.Count(c => (!string.IsNullOrEmpty(c.Telefone) || !string.IsNullOrEmpty(c.Endereco)) && (string.IsNullOrEmpty(c.Telefone) || string.IsNullOrEmpty(c.Endereco))),
+                clientesIncompletos: @Model.Count(c => string.IsNullOrEmpty(c.Telefone) && string.IsNullOrEmpty(c.Endereco))
+            };
+            
+            const blob = new Blob([JSON.stringify(relatorio, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'relatorio-clientes.json';
+            link.click();
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', filtrarClientes);
+            document.getElementById('enderecoFilter').addEventListener('change', filtrarClientes);
+            document.getElementById('cpfFilter').addEventListener('change', filtrarClientes);
+        });
+    </script>
 }
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #2563eb, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
+    }
+    
+    .cliente-avatar {
+        width: 40px;
+        height: 40px;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        opacity: 0.5;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    .btn-group .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .badge {
+        font-size: 0.8rem;
+    }
+    
+    @@media print {
+        .btn, .btn-group {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

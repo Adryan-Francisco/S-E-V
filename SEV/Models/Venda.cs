@@ -21,5 +21,9 @@ namespace SEV.Models
         public List<ItemVenda>? Itens { get; set; }
 
         public decimal Total { get; set; }
+
+        // Propriedade calculada para total (usada quando não há valor explícito)
+        [NotMapped]
+        public decimal TotalCalculado => Itens?.Sum(i => i.Subtotal) ?? Total;
     }
 }

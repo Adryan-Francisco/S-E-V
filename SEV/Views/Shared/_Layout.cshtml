@@ -74,13 +74,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Vendas" ? "active" : "")" asp-controller="Vendas" asp-action="Index">
-                                <i class="bi bi-cash-coin me-2"></i>Vender
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(currentController == "ItemVendas" ? "active" : "")" asp-controller="ItemVendas" asp-action="Index">
-                                <i class="bi bi-receipt me-2"></i>Vendas
+                            <a class="nav-link @(currentController == "VendasCompletas" ? "active" : "")" asp-controller="VendasCompletas" asp-action="Index">
+                                <i class="bi bi-cart-check me-2"></i>Vendas
                             </a>
                         </li>
                     </ul>

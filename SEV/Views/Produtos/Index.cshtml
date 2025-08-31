@@ -16,8 +16,11 @@
                     <p class="text-muted mb-0">Gerencie seu catálogo de produtos e estoque</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary" onclick="exportarProdutos()">
-                        <i class="bi bi-download me-2"></i>Exportar
+                    <button class="btn btn-outline-info" onclick="exportarProdutos()" title="Exportar para Excel">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Exportar
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="mostrarRelatorioEstoque()" title="Relatório de Estoque">
+                        <i class="bi bi-graph-up me-2"></i>Relatório
                     </button>
                     <a asp-action="Create" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Novo Produto
@@ -30,38 +33,50 @@
     <!-- Estatísticas Rápidas -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
-            <div class="card bg-primary bg-opacity-10 border-primary">
+            <div class="card stats-card bg-primary bg-opacity-10 border-primary">
                 <div class="card-body text-center">
-                    <i class="bi bi-box-seam text-primary" style="font-size: 2rem;"></i>
-                    <h4 class="text-primary mt-2 mb-1">@Model.Count()</h4>
+                    <i class="bi bi-box-seam text-primary stats-icon"></i>
+                    <h4 class="text-primary mt-2 mb-1 fw-bold">@Model.Count()</h4>
                     <small class="text-muted">Total de Produtos</small>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">@Model.Count(p => p.Categoria != null) categorizados</span>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card bg-success bg-opacity-10 border-success">
+            <div class="card stats-card bg-success bg-opacity-10 border-success">
                 <div class="card-body text-center">
-                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
-                    <h4 class="text-success mt-2 mb-1">@Model.Count(p => p.QuantidadeEstoque > 10)</h4>
+                    <i class="bi bi-check-circle text-success stats-icon"></i>
+                    <h4 class="text-success mt-2 mb-1 fw-bold">@Model.Count(p => p.QuantidadeEstoque > 10)</h4>
                     <small class="text-muted">Em Estoque</small>
+                    <div class="mt-2">
+                        <span class="badge bg-success">@Model.Sum(p => p.QuantidadeEstoque) unidades</span>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card bg-warning bg-opacity-10 border-warning">
+            <div class="card stats-card bg-warning bg-opacity-10 border-warning">
                 <div class="card-body text-center">
-                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
-                    <h4 class="text-warning mt-2 mb-1">@Model.Count(p => p.QuantidadeEstoque <= 10 && p.QuantidadeEstoque > 0)</h4>
+                    <i class="bi bi-exclamation-triangle text-warning stats-icon"></i>
+                    <h4 class="text-warning mt-2 mb-1 fw-bold">@Model.Count(p => p.QuantidadeEstoque <= 10 && p.QuantidadeEstoque > 0)</h4>
                     <small class="text-muted">Baixo Estoque</small>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Atenção necessária</span>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card bg-danger bg-opacity-10 border-danger">
+            <div class="card stats-card bg-danger bg-opacity-10 border-danger">
                 <div class="card-body text-center">
-                    <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
-                    <h4 class="text-danger mt-2 mb-1">@Model.Count(p => p.QuantidadeEstoque == 0)</h4>
+                    <i class="bi bi-x-circle text-danger stats-icon"></i>
+                    <h4 class="text-danger mt-2 mb-1 fw-bold">@Model.Count(p => p.QuantidadeEstoque == 0)</h4>
                     <small class="text-muted">Sem Estoque</small>
+                    <div class="mt-2">
+                        <span class="badge bg-danger">Reposição urgente</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,9 +86,9 @@
     {
         <div class="row">
             <div class="col-12">
-                <div class="card text-center py-5">
+                <div class="card text-center py-5 border-0 shadow-sm">
                     <div class="card-body">
-                        <i class="bi bi-box text-muted" style="font-size: 4rem;"></i>
+                        <i class="bi bi-box text-muted empty-state-icon"></i>
                         <h4 class="text-muted mt-3">Nenhum produto cadastrado</h4>
                         <p class="text-muted mb-4">Comece cadastrando seu primeiro produto para gerenciar seu estoque</p>
                         <a asp-action="Create" class="btn btn-primary btn-lg">
@@ -86,10 +101,15 @@
     }
     else
     {
-        <!-- Filtros e Busca -->
+        <!-- Filtros e Busca Avançada -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel me-2 text-primary"></i>Filtros e Busca
+                        </h5>
+                    </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -103,15 +123,15 @@
                             <div class="col-md-3">
                                 <select id="categoriaFilter" class="form-select">
                                     <option value="">Todas as Categorias</option>
-                                    @foreach (var categoria in Model.Select(p => p.Categoria?.Nome).Distinct().Where(n => !string.IsNullOrEmpty(n)).OrderBy(n => n))
+                                    @foreach (var categoria in Model.Select(p => p.Categoria).Where(c => c != null).Distinct().OrderBy(c => c!.Nome))
                                     {
-                                        <option value="@categoria">@categoria</option>
+                                        <option value="@categoria!.Nome">@categoria.Nome</option>
                                     }
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <select id="estoqueFilter" class="form-select">
-                                    <option value="">Todos os Status</option>
+                                    <option value="">Todos os Estados</option>
                                     <option value="em-estoque">Em Estoque</option>
                                     <option value="baixo-estoque">Baixo Estoque</option>
                                     <option value="sem-estoque">Sem Estoque</option>
@@ -128,130 +148,192 @@
             </div>
         </div>
 
-        <!-- Lista de Produtos em Cards -->
-        <div class="row g-4" id="produtosContainer">
-            @foreach (var item in Model)
-            {
-                <div class="col-xl-3 col-lg-4 col-md-6 produto-card" 
-                     data-nome="@item.Nome.ToLower()" 
-                     data-categoria="@(item.Categoria?.Nome?.ToLower() ?? "")"
-                     data-estoque="@item.QuantidadeEstoque"
-                     data-preco="@item.Preco">
-                    <div class="card h-100 produto-item">
-                        <div class="card-header bg-transparent border-0 pb-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded">
-                                    <i class="bi bi-box text-primary"></i>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-action="Details" asp-route-id="@item.ProdutoId">
-                                            <i class="bi bi-eye me-2"></i>Ver Detalhes
-                                        </a></li>
-                                        <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.ProdutoId">
-                                            <i class="bi bi-pencil me-2"></i>Editar
-                                        </a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="confirmarExclusao(@item.ProdutoId, '@item.Nome')">
-                                            <i class="bi bi-trash me-2"></i>Excluir
-                                        </a></li>
-                                    </ul>
-                                </div>
-                            </div>
+        <!-- Tabela de Produtos -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul me-2 text-primary"></i>Lista de Produtos
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <span class="text-muted">@Model.Count() produto(s) encontrado(s)</span>
                         </div>
-                        
-                        <div class="card-body text-center">
-                            <h5 class="card-title mb-2">@item.Nome</h5>
-                            <p class="card-text text-muted small mb-3">
-                                @(string.IsNullOrEmpty(item.Descricao) ? "Sem descrição" : 
-                                  item.Descricao.Length > 50 ? item.Descricao.Substring(0, 50) + "..." : item.Descricao)
-                            </p>
-                            
-                            <div class="row text-center mb-3">
-                                <div class="col-6">
-                                    <small class="text-muted d-block">Preço</small>
-                                    <strong class="text-primary">@item.Preco.ToString("C")</strong>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted d-block">Estoque</small>
-                                    <strong class="@(item.QuantidadeEstoque > 10 ? "text-success" : item.QuantidadeEstoque > 0 ? "text-warning" : "text-danger")">
-                                        @item.QuantidadeEstoque
-                                    </strong>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                @if (item.Categoria != null)
-                                {
-                                    <span class="badge bg-primary me-1">@item.Categoria.Nome</span>
-                                }
-                                @if (item.Fornecedor != null)
-                                {
-                                    <span class="badge bg-info">@item.Fornecedor.Nome</span>
-                                }
-                            </div>
-                            
-                            <div class="progress mb-3" style="height: 6px;">
-                                @{
-                                    var percentualEstoque = item.QuantidadeEstoque > 0 ? Math.Min(100, (item.QuantidadeEstoque / 100.0) * 100) : 0;
-                                    var corEstoque = item.QuantidadeEstoque > 10 ? "bg-success" : item.QuantidadeEstoque > 0 ? "bg-warning" : "bg-danger";
-                                }
-                                <div class="progress-bar @corEstoque" style="width: @percentualEstoque%"></div>
-                            </div>
-                            
-                            <div class="d-grid gap-2">
-                                <a asp-action="Edit" asp-route-id="@item.ProdutoId" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-pencil me-1"></i>Editar
-                                </a>
-                            </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="produtosTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <i class="bi bi-box me-2"></i>Produto
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-tags me-2"></i>Categoria
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-currency-dollar me-2"></i>Preço
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-boxes me-2"></i>Estoque
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-graph-up me-2"></i>Status
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-gear me-2"></i>Ações
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var produto in Model.OrderBy(p => p.Nome))
+                                    {
+                                        <tr class="produto-row" data-categoria="@(produto.Categoria?.Nome ?? "")" data-estoque="@produto.QuantidadeEstoque">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="produto-avatar me-3">
+                                                        <i class="bi bi-box text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1 fw-bold">@produto.Nome</h6>
+                                                        <small class="text-muted">@produto.Descricao</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (produto.Categoria != null)
+                                                {
+                                                    <span class="badge bg-info bg-opacity-75">@produto.Categoria.Nome</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Sem Categoria</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-success">R$ @produto.Preco.ToString("N2")</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-@(produto.QuantidadeEstoque > 10 ? "success" : produto.QuantidadeEstoque > 0 ? "warning" : "danger") me-2">
+                                                        @produto.QuantidadeEstoque
+                                                    </span>
+                                                    @if (produto.QuantidadeEstoque <= 10 && produto.QuantidadeEstoque > 0)
+                                                    {
+                                                        <i class="bi bi-exclamation-triangle text-warning" title="Baixo estoque"></i>
+                                                    }
+                                                    else if (produto.QuantidadeEstoque == 0)
+                                                    {
+                                                        <i class="bi bi-x-circle text-danger" title="Sem estoque"></i>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (produto.QuantidadeEstoque > 10)
+                                                {
+                                                    <span class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-check-circle me-1"></i>Em Estoque
+                                                    </span>
+                                                }
+                                                else if (produto.QuantidadeEstoque > 0)
+                                                {
+                                                    <span class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Baixo Estoque
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger bg-opacity-75">
+                                                        <i class="bi bi-x-circle me-1"></i>Sem Estoque
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("Details", new { id = produto.ProdutoId })" 
+                                                       class="btn btn-outline-info" title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = produto.ProdutoId })" 
+                                                       class="btn btn-outline-warning" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Delete", new { id = produto.ProdutoId })" 
+                                                       class="btn btn-outline-danger" title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            }
-        </div>
-
-        <!-- Paginação -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <nav aria-label="Navegação de produtos">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Próximo</a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
         </div>
     }
 </div>
 
-<!-- Modal de Confirmação de Exclusão -->
-<div class="modal fade" id="confirmacaoModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- Modal de Relatório de Estoque -->
+<div class="modal fade" id="relatorioEstoqueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
+                    <i class="bi bi-graph-up me-2 text-primary"></i>Relatório de Estoque
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Tem certeza que deseja excluir o produto <strong id="nomeProduto"></strong>?</p>
-                <p class="text-muted small">Esta ação não pode ser desfeita.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Valor Total em Estoque</h6>
+                                <h4 class="text-success">R$ @Model.Sum(p => p.Preco * p.QuantidadeEstoque).ToString("N2")</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Produtos por Categoria</h6>
+                                <div id="categoriaChartContainer" style="height: 200px;">
+                                    <canvas id="categoriaChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Produtos que precisam de atenção:</h6>
+                    <div class="list-group">
+                        @foreach (var produto in Model.Where(p => p.QuantidadeEstoque <= 10).OrderBy(p => p.QuantidadeEstoque))
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@produto.Nome</strong>
+                                    <br>
+                                    <small class="text-muted">@(produto.Categoria?.Nome ?? "Sem categoria")</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-@(produto.QuantidadeEstoque == 0 ? "danger" : "warning")">
+                                        Estoque: @produto.QuantidadeEstoque
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">R$ @produto.Preco.ToString("N2")</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">
-                    <i class="bi bi-trash me-2"></i>Excluir
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="exportarRelatorio()">
+                    <i class="bi bi-download me-2"></i>Exportar Relatório
                 </button>
             </div>
         </div>
@@ -259,181 +341,218 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        let produtoParaExcluir = null;
-
         // Função de busca e filtros
-        document.getElementById('searchInput').addEventListener('input', filtrarProdutos);
-        document.getElementById('categoriaFilter').addEventListener('change', filtrarProdutos);
-        document.getElementById('estoqueFilter').addEventListener('change', filtrarProdutos);
-
         function filtrarProdutos() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categoria = document.getElementById('categoriaFilter').value.toLowerCase();
-            const estoque = document.getElementById('estoqueFilter').value;
+            const categoriaFilter = document.getElementById('categoriaFilter').value;
+            const estoqueFilter = document.getElementById('estoqueFilter').value;
             
-            const produtos = document.querySelectorAll('.produto-card');
-            let produtosVisiveis = 0;
+            const rows = document.querySelectorAll('.produto-row');
             
-            produtos.forEach(produto => {
-                const nome = produto.dataset.nome;
-                const cat = produto.dataset.categoria;
-                const est = parseInt(produto.dataset.estoque);
+            rows.forEach(row => {
+                const nome = row.querySelector('h6').textContent.toLowerCase();
+                const categoria = row.dataset.categoria;
+                const estoque = parseInt(row.dataset.estoque);
                 
-                let mostrar = true;
+                let showRow = true;
                 
                 // Filtro de busca
                 if (searchTerm && !nome.includes(searchTerm)) {
-                    mostrar = false;
+                    showRow = false;
                 }
                 
                 // Filtro de categoria
-                if (categoria && cat !== categoria) {
-                    mostrar = false;
+                if (categoriaFilter && categoria !== categoriaFilter) {
+                    showRow = false;
                 }
                 
                 // Filtro de estoque
-                if (estoque) {
-                    switch (estoque) {
+                if (estoqueFilter) {
+                    switch (estoqueFilter) {
                         case 'em-estoque':
-                            if (est <= 10) mostrar = false;
+                            if (estoque <= 10) showRow = false;
                             break;
                         case 'baixo-estoque':
-                            if (est > 10 || est === 0) mostrar = false;
+                            if (estoque > 10 || estoque === 0) showRow = false;
                             break;
                         case 'sem-estoque':
-                            if (est > 0) mostrar = false;
+                            if (estoque > 0) showRow = false;
                             break;
                     }
                 }
                 
-                if (mostrar) {
-                    produto.style.display = 'block';
-                    produtosVisiveis++;
-                } else {
-                    produto.style.display = 'none';
-                }
+                row.style.display = showRow ? '' : 'none';
             });
-
-            // Mostrar mensagem se não houver resultados
-            const mensagemSemResultados = document.getElementById('mensagemSemResultados');
-            if (produtosVisiveis === 0) {
-                if (!mensagemSemResultados) {
-                    const mensagem = document.createElement('div');
-                    mensagem.id = 'mensagemSemResultados';
-                    mensagem.className = 'col-12';
-                    mensagem.innerHTML = `
-                        <div class="card text-center py-5">
-                            <div class="card-body">
-                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
-                                <h4 class="text-muted mt-3">Nenhum produto encontrado</h4>
-                                <p class="text-muted mb-4">Tente ajustar os filtros de busca</p>
-                                <button class="btn btn-outline-primary" onclick="limparFiltros()">
-                                    <i class="bi bi-arrow-clockwise me-2"></i>Limpar Filtros
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    document.getElementById('produtosContainer').appendChild(mensagem);
-                }
-            } else if (mensagemSemResultados) {
-                mensagemSemResultados.remove();
-            }
+            
+            // Atualizar contador
+            const visibleRows = document.querySelectorAll('.produto-row[style=""]').length;
+            const totalRows = rows.length;
+            document.querySelector('.text-muted').textContent = `${visibleRows} produto(s) encontrado(s)`;
         }
-
+        
+        // Limpar filtros
         function limparFiltros() {
             document.getElementById('searchInput').value = '';
             document.getElementById('categoriaFilter').value = '';
             document.getElementById('estoqueFilter').value = '';
             filtrarProdutos();
         }
-
+        
+        // Exportar produtos
         function exportarProdutos() {
-            const produtos = Array.from(document.querySelectorAll('.produto-card:not([style*="display: none"])'));
-            const dados = produtos.map(produto => ({
-                nome: produto.querySelector('.card-title').textContent,
-                categoria: produto.querySelector('.badge.bg-primary')?.textContent || 'Sem categoria',
-                estoque: produto.dataset.estoque,
-                preco: produto.dataset.preco
-            }));
-
-            const csv = [
-                ['Nome', 'Categoria', 'Estoque', 'Preço'],
-                ...dados.map(p => [p.nome, p.categoria, p.estoque, p.preco])
-            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'produtos.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Mostrar notificação de sucesso
-            if (typeof showSuccess === 'function') {
-                showSuccess('Produtos exportados com sucesso!');
-            }
-        }
-
-        function confirmarExclusao(produtoId, nomeProduto) {
-            produtoParaExcluir = produtoId;
-            document.getElementById('nomeProduto').textContent = nomeProduto;
-            const modal = new bootstrap.Modal(document.getElementById('confirmacaoModal'));
-            modal.show();
-        }
-
-        // Confirmar exclusão
-        document.getElementById('btnConfirmarExclusao').addEventListener('click', function() {
-            if (produtoParaExcluir) {
-                window.location.href = `/Produtos/Delete/${produtoParaExcluir}`;
-            }
-        });
-
-        // Adicionar animações aos cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.produto-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.classList.add('animate-fade-in-up');
-            });
-
-            // Adicionar tooltips aos botões
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-
-        // Adicionar funcionalidade de ordenação
-        function ordenarProdutos(criterio) {
-            const container = document.getElementById('produtosContainer');
-            const produtos = Array.from(container.children);
+            const table = document.getElementById('produtosTable');
+            const rows = Array.from(table.querySelectorAll('tr'));
             
-            produtos.sort((a, b) => {
-                let valorA, valorB;
-                
-                switch (criterio) {
-                    case 'nome':
-                        valorA = a.querySelector('.card-title').textContent.toLowerCase();
-                        valorB = b.querySelector('.card-title').textContent.toLowerCase();
-                        return valorA.localeCompare(valorB);
-                    case 'preco':
-                        valorA = parseFloat(a.dataset.preco);
-                        valorB = parseFloat(b.dataset.preco);
-                        return valorA - valorB;
-                    case 'estoque':
-                        valorA = parseInt(a.dataset.estoque);
-                        valorB = parseInt(b.dataset.estoque);
-                        return valorA - valorB;
-                    default:
-                        return 0;
+            let csv = 'Produto,Categoria,Preço,Estoque,Status\n';
+            
+            rows.slice(1).forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    const produto = cells[0].querySelector('h6').textContent;
+                    const categoria = cells[1].querySelector('.badge').textContent;
+                    const preco = cells[2].textContent;
+                    const estoque = cells[3].querySelector('.badge').textContent;
+                    const status = cells[4].querySelector('.badge').textContent;
+                    
+                    csv += `"${produto}","${categoria}","${preco}","${estoque}","${status}"\n`;
                 }
             });
             
-            produtos.forEach(produto => container.appendChild(produto));
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'produtos.csv';
+            link.click();
         }
+        
+        // Mostrar relatório de estoque
+        function mostrarRelatorioEstoque() {
+            const modal = new bootstrap.Modal(document.getElementById('relatorioEstoqueModal'));
+            modal.show();
+            
+            // Criar gráfico de categorias
+            setTimeout(() => {
+                const ctx = document.getElementById('categoriaChart').getContext('2d');
+                const categorias = @Html.Raw(Json.Serialize(Model.GroupBy(p => p.Categoria?.Nome ?? "Sem Categoria").Select(g => new { Nome = g.Key, Quantidade = g.Count() })));
+                
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categorias.map(c => c.Nome),
+                        datasets: [{
+                            data: categorias.map(c => c.Quantidade),
+                            backgroundColor: [
+                                '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4',
+                                '#84cc16', '#f59e0b', '#ef4444', '#10b981'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // Exportar relatório
+        function exportarRelatorio() {
+            const relatorio = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                totalProdutos: @Model.Count(),
+                valorTotalEstoque: @Model.Sum(p => p.Preco * p.QuantidadeEstoque),
+                produtosSemEstoque: @Model.Count(p => p.QuantidadeEstoque == 0),
+                produtosBaixoEstoque: @Model.Count(p => p.QuantidadeEstoque <= 10 && p.QuantidadeEstoque > 0)
+            };
+            
+            const blob = new Blob([JSON.stringify(relatorio, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'relatorio-estoque.json';
+            link.click();
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', filtrarProdutos);
+            document.getElementById('categoriaFilter').addEventListener('change', filtrarProdutos);
+            document.getElementById('estoqueFilter').addEventListener('change', filtrarProdutos);
+        });
     </script>
 }
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #2563eb, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
+    }
+    
+    .produto-avatar {
+        width: 40px;
+        height: 40px;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        opacity: 0.5;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    .btn-group .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .badge {
+        font-size: 0.8rem;
+    }
+    
+    @@media print {
+        .btn, .btn-group {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

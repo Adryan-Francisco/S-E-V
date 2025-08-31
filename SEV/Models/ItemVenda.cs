@@ -21,6 +21,10 @@ namespace SEV.Models
 
         public int Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }
+
+        // Propriedade calculada para subtotal
+        [NotMapped]
+        public decimal Subtotal => Quantidade * PrecoUnitario;
     }
 
 

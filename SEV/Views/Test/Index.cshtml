@@ -1,0 +1,104 @@
+@model Dictionary<string, object>
+@{
+    ViewData["Title"] = "Teste de Conexão";
+}
+
+<div class="container mt-4">
+    <h1>Teste de Conexão com Banco de Dados</h1>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Resultados dos Testes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ContainsKey("GeneralError"))
+                    {
+                        <div class="alert alert-danger">
+                            <h6>Erro Geral:</h6>
+                            <p>@Model["GeneralError"]</p>
+                            @if (Model.ContainsKey("StackTrace"))
+                            {
+                                <details>
+                                    <summary>Stack Trace</summary>
+                                    <pre>@Model["StackTrace"]</pre>
+                                </details>
+                            }
+                        </div>
+                    }
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Status da Conexão:</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Contexto Configurado
+                                    <span class="badge @(Model.ContainsKey("ContextConfigured") && (bool)Model["ContextConfigured"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("ContextConfigured") ? Model["ContextConfigured"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Conecta ao Banco
+                                    <span class="badge @(Model.ContainsKey("CanConnect") && (bool)Model["CanConnect"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("CanConnect") ? Model["CanConnect"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Banco Existe
+                                    <span class="badge @(Model.ContainsKey("DatabaseExists") && (bool)Model["DatabaseExists"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("DatabaseExists") ? Model["DatabaseExists"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Status das Tabelas:</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Tabela Produtos
+                                    <span class="badge @(Model.ContainsKey("ProdutosTable") && (bool)Model["ProdutosTable"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("ProdutosTable") ? Model["ProdutosTable"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Tabela Vendas
+                                    <span class="badge @(Model.ContainsKey("VendasTable") && (bool)Model["VendasTable"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("VendasTable") ? Model["VendasTable"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Tabela Clientes
+                                    <span class="badge @(Model.ContainsKey("ClientesTable") && (bool)Model["ClientesTable"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("ClientesTable") ? Model["ClientesTable"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Tabela Categorias
+                                    <span class="badge @(Model.ContainsKey("CategoriasTable") && (bool)Model["CategoriasTable"] ? "bg-success" : "bg-danger") rounded-pill">
+                                        @(Model.ContainsKey("CategoriasTable") ? Model["CategoriasTable"].ToString() : "N/A")
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    @if (Model.ContainsKey("ConnectionError"))
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <h6>Erro de Conexão:</h6>
+                            <p>@Model["ConnectionError"]</p>
+                        </div>
+                    }
+                    
+                    <div class="mt-3">
+                        <a href="/Dashboard" class="btn btn-primary">Voltar ao Dashboard</a>
+                        <a href="/Test" class="btn btn-secondary">Executar Teste Novamente</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

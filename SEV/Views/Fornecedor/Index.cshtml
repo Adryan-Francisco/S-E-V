@@ -4,90 +4,575 @@
     ViewData["Title"] = "Fornecedores";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="text-primary">
-            <i class="bi bi-truck me-2"></i> Fornecedores
-        </h1>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Novo Fornecedor
-        </a>
+<div class="container-fluid">
+    <!-- Header da Página -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-gradient mb-2">
+                        <i class="bi bi-truck me-3"></i>Fornecedores
+                    </h1>
+                    <p class="text-muted mb-0">Gerencie seus parceiros comerciais e fornecedores</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info" onclick="exportarFornecedores()" title="Exportar para Excel">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Exportar
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="mostrarRelatorioFornecedores()" title="Relatório de Fornecedores">
+                        <i class="bi bi-graph-up me-2"></i>Relatório
+                    </button>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Novo Fornecedor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-primary bg-opacity-10 border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-truck text-primary stats-icon"></i>
+                    <h4 class="text-primary mt-2 mb-1 fw-bold">@Model.Count()</h4>
+                    <small class="text-muted">Total de Fornecedores</small>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">@Model.Count(f => !string.IsNullOrEmpty(f.Telefone)) com telefone</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-success bg-opacity-10 border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt text-success stats-icon"></i>
+                    <h4 class="text-success mt-2 mb-1 fw-bold">@Model.Count(f => !string.IsNullOrEmpty(f.Endereco))</h4>
+                    <small class="text-muted">Com Endereço</small>
+                    <div class="mt-2">
+                        <span class="badge bg-success">@Model.Count(f => !string.IsNullOrEmpty(f.CNPJ)) com CNPJ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-info bg-opacity-10 border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-telephone text-info stats-icon"></i>
+                    <h4 class="text-info mt-2 mb-1 fw-bold">@Model.Count(f => !string.IsNullOrEmpty(f.Telefone))</h4>
+                    <small class="text-muted">Com Telefone</small>
+                    <div class="mt-2">
+                        <span class="badge bg-info">@Model.Count(f => !string.IsNullOrEmpty(f.Telefone) && !string.IsNullOrEmpty(f.Endereco)) completos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stats-card bg-warning bg-opacity-10 border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-event text-warning stats-icon"></i>
+                    <h4 class="text-warning mt-2 mb-1 fw-bold">@Model.Count(f => f.FornecedorId > Model.Max(fl => fl.FornecedorId) - 3)</h4>
+                    <small class="text-muted">Novos (últimos 3)</small>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Recém cadastrados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center shadow-sm p-4">
-            <i class="bi bi-exclamation-circle me-2"></i> Nenhum fornecedor cadastrado até o momento.
+        <div class="row">
+            <div class="col-12">
+                <div class="card text-center py-5 border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="bi bi-truck text-muted empty-state-icon"></i>
+                        <h4 class="text-muted mt-3">Nenhum fornecedor cadastrado</h4>
+                        <p class="text-muted mb-4">Comece cadastrando seus primeiros fornecedores para expandir sua rede</p>
+                        <a asp-action="Create" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Fornecedor
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     }
     else
     {
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome</th>
-                        <th>CNPJ</th>
-                        <th>Telefone</th>
-                        <th>Endereço</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.Nome</td>
-                            <td>
-                                @{
-                                    string cnpj = new string(item.CNPJ?.Where(char.IsDigit).ToArray());
-                                    string cnpjFormatado = cnpj?.Length == 14
-                                    ? Convert.ToUInt64(cnpj).ToString(@"00\.000\.000\/0000\-00")
-                                    : item.CNPJ;
-                                }
-                                @cnpjFormatado
-                            </td>
-                            <td>
-                                @{
-                                    string telefone = item.Telefone?.Trim();
-                                    string telFormatado = telefone?.Length == 11
-                                    ? $"({telefone[..2]}) {telefone.Substring(2, 5)}-{telefone[7..]}"
-                                    : telefone?.Length == 10
-                                    ? $"({telefone[..2]}) {telefone.Substring(2, 4)}-{telefone[6..]}"
-                                    : telefone;
-                                }
-                                @telFormatado
-                            </td>
-                            <td>@item.Endereco</td>
-                            <td class="text-end">
-                                <div class="btn-group" role="group">
-                                    <a asp-action="Edit" asp-route-id="@item.FornecedorId"
-                                       class="btn btn-sm btn-outline-primary"
-                                       title="Editar" data-bs-toggle="tooltip">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.FornecedorId"
-                                       class="btn btn-sm btn-outline-info"
-                                       title="Detalhes" data-bs-toggle="tooltip">
-                                        <i class="bi bi-info-circle"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.FornecedorId"
-                                       class="btn btn-sm btn-outline-danger"
-                                       title="Excluir" data-bs-toggle="tooltip">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+        <!-- Filtros e Busca Avançada -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel me-2 text-primary"></i>Filtros e Busca
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar fornecedores...">
                                 </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="enderecoFilter" class="form-select">
+                                    <option value="">Todos os Endereços</option>
+                                    @foreach (var endereco in Model.Select(f => f.Endereco).Where(e => !string.IsNullOrEmpty(e)).Distinct().OrderBy(e => e))
+                                    {
+                                        <option value="@endereco">@endereco</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="cnpjFilter" class="form-select">
+                                    <option value="">Todos os CNPJs</option>
+                                    @foreach (var cnpj in Model.Select(f => f.CNPJ).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c))
+                                    {
+                                        <option value="@cnpj">@cnpj</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" onclick="limparFiltros()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Fornecedores -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul me-2 text-primary"></i>Lista de Fornecedores
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <span class="text-muted">@Model.Count() fornecedor(es) encontrado(s)</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="fornecedoresTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <i class="bi bi-building me-2"></i>Fornecedor
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-geo-alt me-2"></i>Localização
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-telephone me-2"></i>Contato
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-calendar me-2"></i>Cadastro
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-info-circle me-2"></i>Status
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-gear me-2"></i>Ações
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var fornecedor in Model.OrderBy(f => f.Nome))
+                                    {
+                                        <tr class="fornecedor-row" data-endereco="@(fornecedor.Endereco ?? "")" data-cnpj="@(fornecedor.CNPJ ?? "")">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="fornecedor-avatar me-3">
+                                                        <i class="bi bi-building text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1 fw-bold">@fornecedor.Nome</h6>
+                                                        <small class="text-muted">@fornecedor.CNPJ</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div class="fw-medium">@fornecedor.Endereco</div>
+                                                    <small class="text-muted">CNPJ: @fornecedor.CNPJ</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @if (!string.IsNullOrEmpty(fornecedor.Telefone))
+                                                    {
+                                                        <div class="fw-medium">
+                                                            <i class="bi bi-telephone me-1 text-success"></i>@fornecedor.Telefone
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(fornecedor.Endereco))
+                                                    {
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-geo-alt me-1"></i>@fornecedor.Endereco
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div class="fw-medium">ID: @fornecedor.FornecedorId</div>
+                                                    <small class="text-muted">Fornecedor ativo</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(fornecedor.Telefone) && !string.IsNullOrEmpty(fornecedor.Endereco))
+                                                {
+                                                    <span class="badge bg-success bg-opacity-75">
+                                                        <i class="bi bi-check-circle me-1"></i>Completo
+                                                    </span>
+                                                }
+                                                else if (!string.IsNullOrEmpty(fornecedor.Telefone) || !string.IsNullOrEmpty(fornecedor.Endereco))
+                                                {
+                                                    <span class="badge bg-warning bg-opacity-75">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Parcial
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger bg-opacity-75">
+                                                        <i class="bi bi-x-circle me-1"></i>Incompleto
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("Details", new { id = fornecedor.FornecedorId })" 
+                                                       class="btn btn-outline-info" title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = fornecedor.FornecedorId })" 
+                                                       class="btn btn-outline-warning" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Delete", new { id = fornecedor.FornecedorId })" 
+                                                       class="btn btn-outline-danger" title="Excluir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 </div>
 
-<!-- Ativar tooltips do Bootstrap -->
-<script>
-    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    tooltips.forEach(t => new bootstrap.Tooltip(t));
-</script>
+<!-- Modal de Relatório de Fornecedores -->
+<div class="modal fade" id="relatorioFornecedoresModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-graph-up me-2 text-primary"></i>Relatório de Fornecedores
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Distribuição por Endereço</h6>
+                                <div id="estadoChartContainer" style="height: 200px;">
+                                    <canvas id="estadoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Status dos Cadastros</h6>
+                                <div id="statusChartContainer" style="height: 200px;">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Top 5 Endereços com Mais Fornecedores:</h6>
+                    <div class="list-group">
+                        @foreach (var endereco in Model.GroupBy(f => f.Endereco).Where(g => !string.IsNullOrEmpty(g.Key)).OrderByDescending(g => g.Count()).Take(5))
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@endereco.Key</strong>
+                                    <br>
+                                    <small class="text-muted">@endereco.First().CNPJ</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">
+                                        @endereco.Count() fornecedor(es)
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" onclick="exportarRelatorio()">
+                    <i class="bi bi-download me-2"></i>Exportar Relatório
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Função de busca e filtros
+        function filtrarFornecedores() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const enderecoFilter = document.getElementById('enderecoFilter').value;
+            const cnpjFilter = document.getElementById('cnpjFilter').value;
+            
+            const rows = document.querySelectorAll('.fornecedor-row');
+            
+            rows.forEach(row => {
+                const nome = row.querySelector('h6').textContent.toLowerCase();
+                const endereco = row.dataset.endereco;
+                const cnpj = row.dataset.cnpj;
+                
+                let showRow = true;
+                
+                // Filtro de busca
+                if (searchTerm && !nome.includes(searchTerm)) {
+                    showRow = false;
+                }
+                
+                // Filtro de endereço
+                if (enderecoFilter && endereco !== enderecoFilter) {
+                    showRow = false;
+                }
+                
+                // Filtro de CNPJ
+                if (cnpjFilter && cnpj !== cnpjFilter) {
+                    showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+            
+            // Atualizar contador
+            const visibleRows = document.querySelectorAll('.fornecedor-row[style=""]').length;
+            document.querySelector('.text-muted').textContent = `${visibleRows} fornecedor(es) encontrado(s)`;
+        }
+        
+        // Limpar filtros
+        function limparFiltros() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('enderecoFilter').value = '';
+            document.getElementById('cnpjFilter').value = '';
+            filtrarFornecedores();
+        }
+        
+        // Exportar fornecedores
+        function exportarFornecedores() {
+            const table = document.getElementById('fornecedoresTable');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            let csv = 'Fornecedor,CNPJ,Cidade,Estado,Telefone,Email,Status\n';
+            
+            rows.slice(1).forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    const nome = cells[0].querySelector('h6').textContent;
+                    const cnpj = cells[0].querySelector('small').textContent;
+                    const cidade = cells[1].querySelector('.fw-medium').textContent;
+                    const estado = cells[1].querySelector('small').textContent;
+                    const telefone = cells[2].querySelector('.fw-medium')?.textContent.replace('📞', '').trim() || '';
+                    const email = cells[2].querySelector('small')?.textContent.replace('✉️', '').trim() || '';
+                    const status = cells[4].querySelector('.badge').textContent;
+                    
+                    csv += `"${nome}","${cnpj}","${cidade}","${estado}","${telefone}","${email}","${status}"\n`;
+                }
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'fornecedores.csv';
+            link.click();
+        }
+        
+        // Mostrar relatório de fornecedores
+        function mostrarRelatorioFornecedores() {
+            const modal = new bootstrap.Modal(document.getElementById('relatorioFornecedoresModal'));
+            modal.show();
+            
+            // Criar gráficos
+            setTimeout(() => {
+                // Gráfico de endereços
+                const enderecoCtx = document.getElementById('estadoChart').getContext('2d');
+                const enderecos = @Html.Raw(Json.Serialize(Model.GroupBy(f => f.Endereco).Where(g => !string.IsNullOrEmpty(g.Key)).Select(g => new { Nome = g.Key, Quantidade = g.Count() })));
+                
+                new Chart(enderecoCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: enderecos.map(e => e.Nome),
+                        datasets: [{
+                            data: enderecos.map(e => e.Quantidade),
+                            backgroundColor: [
+                                '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4',
+                                '#84cc16', '#f59e0b', '#ef4444', '#10b981'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                
+                // Gráfico de status
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+                const totalFornecedores = @Model.Count();
+                const completos = @Model.Count(f => !string.IsNullOrEmpty(f.Telefone) && !string.IsNullOrEmpty(f.Endereco));
+                const parciais = @Model.Count(f => (!string.IsNullOrEmpty(f.Telefone) || !string.IsNullOrEmpty(f.Endereco)) && (string.IsNullOrEmpty(f.Telefone) || string.IsNullOrEmpty(f.Endereco)));
+                const incompletos = @Model.Count(f => string.IsNullOrEmpty(f.Telefone) && string.IsNullOrEmpty(f.Endereco));
+                
+                new Chart(statusCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completos', 'Parciais', 'Incompletos'],
+                        datasets: [{
+                            data: [completos, parciais, incompletos],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // Exportar relatório
+        function exportarRelatorio() {
+            const relatorio = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                totalFornecedores: @Model.Count(),
+                totalEnderecos: @Model.Select(f => f.Endereco).Where(e => !string.IsNullOrEmpty(e)).Distinct().Count(),
+                totalCNPJs: @Model.Select(f => f.CNPJ).Where(c => !string.IsNullOrEmpty(c)).Distinct().Count(),
+                fornecedoresCompletos: @Model.Count(f => !string.IsNullOrEmpty(f.Telefone) && !string.IsNullOrEmpty(f.Endereco)),
+                fornecedoresParciais: @Model.Count(f => (!string.IsNullOrEmpty(f.Telefone) || !string.IsNullOrEmpty(f.Endereco)) && (string.IsNullOrEmpty(f.Telefone) || string.IsNullOrEmpty(f.Endereco))),
+                fornecedoresIncompletos: @Model.Count(f => string.IsNullOrEmpty(f.Telefone) && string.IsNullOrEmpty(f.Endereco))
+            };
+            
+            const blob = new Blob([JSON.stringify(relatorio, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'relatorio-fornecedores.json';
+            link.click();
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', filtrarFornecedores);
+            document.getElementById('enderecoFilter').addEventListener('change', filtrarFornecedores);
+            document.getElementById('cnpjFilter').addEventListener('change', filtrarFornecedores);
+        });
+    </script>
+}
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #2563eb, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
+    }
+    
+    .fornecedor-avatar {
+        width: 40px;
+        height: 40px;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        opacity: 0.5;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    .btn-group .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .badge {
+        font-size: 0.8rem;
+    }
+    
+    @@media print {
+        .btn, .btn-group {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

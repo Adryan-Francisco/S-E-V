@@ -7,93 +7,138 @@
     <!-- Header do Dashboard -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="text-gradient mb-2">Dashboard</h1>
-            <p class="text-muted mb-0">Visão geral do sistema de vendas</p>
+            <h1 class="text-gradient mb-2">
+                <i class="bi bi-speedometer2 text-primary me-3"></i>Dashboard
+            </h1>
+            <p class="text-muted mb-0">Visão geral completa do sistema de vendas SEV</p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-primary" onclick="window.print()">
                 <i class="bi bi-printer me-2"></i>Imprimir
             </button>
-            <button class="btn btn-primary" id="refreshDashboardBtn">
+            <button class="btn btn-primary" id="refreshDashboardBtn" onclick="refreshDashboard()">
                 <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
             </button>
         </div>
     </div>
 
-    <!-- Cards de Estatísticas -->
+    <!-- Alertas e Notificações -->
+    @if (Model.Alertas?.Any() == true)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info border-0 shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-bell me-3 fs-4"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="alert-heading mb-1">Notificações e Alertas</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var alerta in Model.Alertas)
+                                {
+                                    <a href="@alerta.Url" class="btn btn-sm btn-outline-@alerta.Cor">
+                                        <i class="bi @alerta.Icone me-1"></i>@alerta.Mensagem
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Cards de Estatísticas Principais -->
     <div class="row g-4 mb-5">
         <div class="col-xl-3 col-md-6">
-            <div class="card stats-card h-100">
-                <div class="card-body text-center">
-                    <div class="stats-icon bg-primary bg-opacity-10 text-primary mx-auto">
-                        <i class="bi bi-box"></i>
+            <div class="card stats-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon bg-primary bg-opacity-10 text-primary mx-auto mb-3">
+                        <i class="bi bi-box fs-1"></i>
                     </div>
-                    <h3 class="mb-1">@Model.TotalProdutos</h3>
+                    <h3 class="mb-1 fw-bold">@Model.TotalProdutos.ToString("N0")</h3>
                     <p class="text-muted mb-2">Total de Produtos</p>
-                    <small class="text-success">
-                        <i class="bi bi-arrow-up me-1"></i>+12% este mês
-                    </small>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-success">@Model.CategoriasAtivas categorias</span>
+                        <span class="badge bg-warning">@Model.ProdutosBaixoEstoque baixo estoque</span>
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="col-xl-3 col-md-6">
-            <div class="card stats-card h-100">
-                <div class="card-body text-center">
-                    <div class="stats-icon bg-success bg-opacity-10 text-success mx-auto">
-                        <i class="bi bi-cash-coin"></i>
+            <div class="card stats-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon bg-success bg-opacity-10 text-success mx-auto mb-3">
+                        <i class="bi bi-cash-coin fs-1"></i>
                     </div>
-                    <h3 class="mb-1">@Model.TotalVendas</h3>
+                    <h3 class="mb-1 fw-bold">@Model.TotalVendas.ToString("N0")</h3>
                     <p class="text-muted mb-2">Total de Vendas</p>
-                    <small class="text-success">
-                        <i class="bi bi-arrow-up me-1"></i>+8% esta semana
-                    </small>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-success">@Model.VendasMesAtual este mês</span>
+                        @if (Model.CrescimentoVendas > 0)
+                        {
+                            <span class="badge bg-success">+@Model.CrescimentoVendas.ToString("F1")%</span>
+                        }
+                        else if (Model.CrescimentoVendas < 0)
+                        {
+                            <span class="badge bg-danger">@Model.CrescimentoVendas.ToString("F1")%</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="col-xl-3 col-md-6">
-            <div class="card stats-card h-100">
-                <div class="card-body text-center">
-                    <div class="stats-icon bg-warning bg-opacity-10 text-warning mx-auto">
-                        <i class="bi bi-currency-dollar"></i>
+            <div class="card stats-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon bg-warning bg-opacity-10 text-warning mx-auto mb-3">
+                        <i class="bi bi-currency-dollar fs-1"></i>
                     </div>
-                    <h3 class="mb-1">R$ @Model.FaturamentoTotal.ToString("N2")</h3>
+                    <h3 class="mb-1 fw-bold">R$ @Model.FaturamentoTotal.ToString("N2")</h3>
                     <p class="text-muted mb-2">Faturamento Total</p>
-                    <small class="text-success">
-                        <i class="bi bi-arrow-up me-1"></i>+15% este mês
-                    </small>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-info">R$ @Model.FaturamentoMesAtual.ToString("N2") este mês</span>
+                        @if (Model.CrescimentoFaturamento > 0)
+                        {
+                            <span class="badge bg-success">+@Model.CrescimentoFaturamento.ToString("F1")%</span>
+                        }
+                        else if (Model.CrescimentoFaturamento < 0)
+                        {
+                            <span class="badge bg-danger">@Model.CrescimentoFaturamento.ToString("F1")%</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="col-xl-3 col-md-6">
-            <div class="card stats-card h-100">
-                <div class="card-body text-center">
-                    <div class="stats-icon bg-info bg-opacity-10 text-info mx-auto">
-                        <i class="bi bi-people"></i>
+            <div class="card stats-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon bg-info bg-opacity-10 text-info mx-auto mb-3">
+                        <i class="bi bi-people fs-1"></i>
                     </div>
-                    <h3 class="mb-1">@Model.ClientesAtivos</h3>
+                    <h3 class="mb-1 fw-bold">@Model.ClientesAtivos.ToString("N0")</h3>
                     <p class="text-muted mb-2">Clientes Ativos</p>
-                    <small class="text-success">
-                        <i class="bi bi-arrow-up me-1"></i>+5% este mês
-                    </small>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-primary">@Model.FornecedoresAtivos fornecedores</span>
+                        <span class="badge bg-secondary">R$ @Model.TicketMedio.ToString("N2") ticket médio</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Gráficos -->
+    <!-- Gráficos Principais -->
     <div class="row g-4 mb-5">
         <div class="col-xl-8">
-            <div class="card">
-                <div class="card-header">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
                     <h5 class="card-title mb-0">
-                        <i class="bi bi-graph-up me-2"></i>Vendas por Mês
+                        <i class="bi bi-graph-up me-2 text-primary"></i>Vendas por Mês
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="height: 300px;">
+                    <div class="chart-container" style="height: 350px;">
                         <canvas id="vendasMesChart"></canvas>
                     </div>
                 </div>
@@ -101,16 +146,168 @@
         </div>
         
         <div class="col-xl-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
                     <h5 class="card-title mb-0">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Produtos com Baixo Estoque
+                        <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Produtos com Baixo Estoque
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="baixoEstoqueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos Secundários -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-star me-2 text-success"></i>Top Produtos por Vendas
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="chart-container" style="height: 300px;">
-                        <canvas id="baixoEstoqueChart"></canvas>
+                        <canvas id="topProdutosChart"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-tags me-2 text-info"></i>Produtos por Categoria
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="categoriasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabelas de Dados Recentes -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-box me-2 text-primary"></i>Produtos Recentes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.ProdutosRecentes?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var produto in Model.ProdutosRecentes)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@produto.Nome</h6>
+                                        <small class="text-muted">R$ @produto.Preco.ToString("N2")</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-@(produto.QuantidadeEstoque > 10 ? "success" : produto.QuantidadeEstoque > 0 ? "warning" : "danger")">
+                                            @produto.QuantidadeEstoque
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">@(produto.Categoria?.Nome ?? "Sem categoria")</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted fs-1"></i>
+                            <p class="text-muted mt-2">Nenhum produto cadastrado</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cash-coin me-2 text-success"></i>Vendas Recentes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.VendasRecentes?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var venda in Model.VendasRecentes)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Venda #@venda.VendaId</h6>
+                                        <small class="text-muted">@venda.DataVenda.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success">R$ @venda.TotalCalculado.ToString("N2")</span>
+                                        <br>
+                                        <small class="text-muted">@(venda.Itens?.Count ?? 0) itens</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted fs-1"></i>
+                            <p class="text-muted mt-2">Nenhuma venda realizada</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-people me-2 text-info"></i>Clientes Recentes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.ClientesRecentes?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var cliente in Model.ClientesRecentes)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@cliente.Nome</h6>
+                                        <small class="text-muted">@cliente.Telefone</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">@cliente.Telefone</span>
+                                        <br>
+                                        <small class="text-muted">@cliente.Endereco</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted fs-1"></i>
+                            <p class="text-muted mt-2">Nenhum cliente cadastrado</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -119,17 +316,17 @@
     <!-- Atividades Recentes -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="bi bi-activity me-2"></i>Atividades Recentes
+                        <i class="bi bi-activity me-2 text-primary"></i>Atividades Recentes
                     </h5>
-                    <button class="btn btn-sm btn-outline-primary" id="refreshAtividadesBtn">
+                    <button class="btn btn-sm btn-outline-primary" id="refreshAtividadesBtn" onclick="refreshAtividades()">
                         <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
                     </button>
                 </div>
                 <div class="card-body">
-                    @if (Model.AtividadesRecentes.Any())
+                    @if (Model.AtividadesRecentes?.Any() == true)
                     {
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -140,6 +337,7 @@
                                         <th>Usuário</th>
                                         <th>Data/Hora</th>
                                         <th>Status</th>
+                                        <th>Valor</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -164,6 +362,9 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-@atividade.CorStatus">@atividade.Status</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">@atividade.Valor</small>
                                             </td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
@@ -191,7 +392,7 @@
                                                     }
                                                     else if (atividade.Tipo == "Venda")
                                                     {
-                                                        <a href="@Url.Action("Details", "Vendas", new { id = atividade.Id })" 
+                                                        <a href="@Url.Action("Details", "VendasCompletas", new { id = atividade.Id })" 
                                                            class="btn btn-outline-info btn-sm" 
                                                            title="Ver Venda">
                                                             <i class="bi bi-receipt"></i>
@@ -227,10 +428,10 @@
         const vendasMesChart = new Chart(vendasMesCtx, {
             type: 'line',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.Meses)),
+                labels: @Html.Raw(Json.Serialize(Model.Meses ?? new List<string>())),
                 datasets: [{
-                    label: 'Vendas (R$)',
-                    data: @Html.Raw(Json.Serialize(Model.VendasPorMes)),
+                    label: 'Faturamento (R$)',
+                    data: @Html.Raw(Json.Serialize(Model.VendasPorMes ?? new List<decimal>())),
                     borderColor: '#2563eb',
                     backgroundColor: 'rgba(37, 99, 235, 0.1)',
                     borderWidth: 3,
@@ -239,15 +440,34 @@
                     pointBackgroundColor: '#2563eb',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 6
+                    pointRadius: 6,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Quantidade de Vendas',
+                    data: @Html.Raw(Json.Serialize(Model.QuantidadeVendasPorMes ?? new List<int>())),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: {
-                        display: false
+                        display: true,
+                        position: 'top'
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -260,6 +480,9 @@
                 },
                 scales: {
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)'
@@ -267,6 +490,20 @@
                         ticks: {
                             callback: function(value) {
                                 return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('pt-BR');
                             }
                         }
                     },
@@ -284,18 +521,12 @@
         const baixoEstoqueChart = new Chart(baixoEstoqueCtx, {
             type: 'doughnut',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueNomes)),
+                labels: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueNomes ?? new List<string>())),
                 datasets: [{
-                    data: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueQtd)),
+                    data: @Html.Raw(Json.Serialize(Model.ProdutosBaixoEstoqueQtd ?? new List<int>())),
                     backgroundColor: [
-                        '#ef4444',
-                        '#f59e0b',
-                        '#10b981',
-                        '#3b82f6',
-                        '#8b5cf6',
-                        '#ec4899',
-                        '#06b6d4',
-                        '#84cc16'
+                        '#ef4444', '#f59e0b', '#10b981', '#3b82f6',
+                        '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
                     ],
                     borderWidth: 2,
                     borderColor: '#ffffff'
@@ -310,9 +541,7 @@
                         labels: {
                             padding: 20,
                             usePointStyle: true,
-                            font: {
-                                size: 12
-                            }
+                            font: { size: 12 }
                         }
                     },
                     tooltip: {
@@ -332,13 +561,113 @@
             }
         });
 
+        // Gráfico de Top Produtos
+        const topProdutosCtx = document.getElementById('topProdutosChart').getContext('2d');
+        const topProdutosChart = new Chart(topProdutosCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TopProdutosNomes ?? new List<string>())),
+                datasets: [{
+                    label: 'Quantidade Vendida',
+                    data: @Html.Raw(Json.Serialize(Model.TopProdutosVendas ?? new List<int>())),
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Categorias
+        const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+        const categoriasChart = new Chart(categoriasCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.CategoriasNomes ?? new List<string>())),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.CategoriasQuantidade ?? new List<int>())),
+                    backgroundColor: [
+                        '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4',
+                        '#84cc16', '#f59e0b', '#ef4444', '#10b981'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + ' produtos';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         // Função para atualizar o dashboard
         function refreshDashboard() {
-            location.reload();
+            const btn = document.getElementById('refreshDashboardBtn');
+            const icon = btn.querySelector('i');
+            
+            btn.disabled = true;
+            icon.className = 'bi bi-arrow-clockwise me-2 spin';
+            
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
         }
 
         // Função para atualizar atividades
         function refreshAtividades() {
+            const btn = document.getElementById('refreshAtividadesBtn');
+            const icon = btn.querySelector('i');
+            
+            btn.disabled = true;
+            icon.className = 'bi bi-arrow-clockwise me-1 spin';
+            
             const atividadeRows = document.querySelectorAll('.atividade-row');
             atividadeRows.forEach(row => {
                 row.style.opacity = '0.5';
@@ -347,7 +676,7 @@
             
             setTimeout(() => {
                 location.reload();
-            }, 300);
+            }, 1000);
         }
 
         // Função para ver detalhes da atividade
@@ -362,7 +691,7 @@
                     url = `/Clientes/Details/${id}`;
                     break;
                 case 'Venda':
-                    url = `/Vendas/Details/${id}`;
+                    url = `/VendasCompletas/Details/${id}`;
                     break;
                 case 'Categoria':
                     url = `/Categorias/Details/${id}`;
@@ -393,5 +722,88 @@
                 }, index * 100);
             });
         });
+
+        // Adicionar evento de clique para botões de detalhes
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-detalhes-atividade')) {
+                const btn = e.target.closest('.btn-detalhes-atividade');
+                const tipo = btn.dataset.tipo;
+                const id = btn.dataset.id;
+                verDetalhesAtividade(tipo, id);
+            }
+        });
     </script>
 }
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #2563eb, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .stats-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
+    }
+    
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+    
+    .list-group-item:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    @@media print {
+        .btn, .btn-group {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
