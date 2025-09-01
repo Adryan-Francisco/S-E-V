@@ -12,8 +12,8 @@ using SEV.Data;
 namespace SEV.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250710112651_Venderss")]
-    partial class Venderss
+    [Migration("20250901112129_InitialComplete")]
+    partial class InitialComplete
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

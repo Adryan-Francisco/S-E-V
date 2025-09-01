@@ -192,13 +192,13 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="produto-avatar me-3">
-                                                        <i class="bi bi-box text-primary"></i>
-                                                    </div>
+                                    <i class="bi bi-box text-primary"></i>
+                                </div>
                                                     <div>
                                                         <h6 class="mb-1 fw-bold">@produto.Nome</h6>
                                                         <small class="text-muted">@produto.Descricao</small>
-                                                    </div>
-                                                </div>
+                                </div>
+                            </div>
                                             </td>
                                             <td>
                                                 @if (produto.Categoria != null)
@@ -225,8 +225,8 @@
                                                     else if (produto.QuantidadeEstoque == 0)
                                                     {
                                                         <i class="bi bi-x-circle text-danger" title="Sem estoque"></i>
-                                                    }
-                                                </div>
+                                }
+                            </div>
                                             </td>
                                             <td>
                                                 @if (produto.QuantidadeEstoque > 10)
@@ -269,12 +269,12 @@
                                 </tbody>
                             </table>
                         </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
-    }
-</div>
 
 <!-- Modal de Relatório de Estoque -->
 <div class="modal fade" id="relatorioEstoqueModal" tabindex="-1">
@@ -324,11 +324,11 @@
                                     </span>
                                     <br>
                                     <small class="text-muted">R$ @produto.Preco.ToString("N2")</small>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+            </div>
+        </div>
+    }
+</div>
+            </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -399,7 +399,7 @@
             document.getElementById('estoqueFilter').value = '';
             filtrarProdutos();
         }
-        
+
         // Exportar produtos
         function exportarProdutos() {
             const table = document.getElementById('produtosTable');
@@ -419,7 +419,7 @@
                     csv += `"${produto}","${categoria}","${preco}","${estoque}","${status}"\n`;
                 }
             });
-            
+
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
