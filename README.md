@@ -76,6 +76,16 @@
 - [PostgreSQL 15+](https://www.postgresql.org/download/)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/)
 
+## 📥 Instalação Automática (Windows)
+
+### Requisitos
+- Windows 10/11 ou Windows Server 2016+
+- .NET 8 Runtime: https://dotnet.microsoft.com/download/dotnet/8.0
+- PostgreSQL 15+: https://www.postgresql.org/download/
+
+### Como Instalar
+
+1. **Clone o repositório**
 ### Configuração
 1. **Clone o repositório**
    ```bash
